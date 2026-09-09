@@ -1,7 +1,6 @@
 # robots.txt — https://hstarchitects.com
 User-agent: *
 Allow: /
-Disallow: /prototype-b/
 Disallow: /_
 Disallow: /*?filter=
 

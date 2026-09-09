@@ -25,18 +25,6 @@ supabase/migrations/  database schema
 tools/                site generator (see below)
 ```
 
-## Two design directions
-
-The site root is **Prototype A** (Dribbble-derived: rounded cards, pill nav,
-geometric sans). `/prototype-b/` is **Prototype B** ("Atelier": dark-first,
-vertical nav rail, serif display type, hairline rules). Both render the same
-content from `tools/content.py`. See [DEPLOY.md](DEPLOY.md).
-
-```bash
-python tools/build_site.py      # prototype A -> repository root
-python tools/build_site_b.py    # prototype B -> /prototype-b/
-```
-
 ## Content rules
 
 Everything factual on this site must be traceable to one of the two client

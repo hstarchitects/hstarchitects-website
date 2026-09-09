@@ -1001,7 +1001,6 @@ def build_static():
     robots = f"""# robots.txt — {SITE['domain']}
 User-agent: *
 Allow: /
-Disallow: /prototype-b/
 Disallow: /_
 Disallow: /*?filter=
 

@@ -84,15 +84,16 @@ Read enquiries in the Supabase dashboard under Table Editor → `enquiries`, or
 from a server using the secret key. One test row from setup is in the table and
 can be deleted.
 
-## Two design directions
+## Design direction
 
-- **Prototype A** — the site root. Follows the Dribbble reference: rounded cards,
-  a floating pill nav, geometric sans display type, glass surfaces.
-- **Prototype B** — `/prototype-b/`. "Atelier": dark-first, a fixed vertical nav
-  rail, Cormorant Garamond display type, hairline rules, square corners.
+Two directions were prototyped. **Prototype A was chosen** and is what the site
+now is: rounded cards, a floating pill nav, geometric sans display type and glass
+surfaces, following the Dribbble reference.
 
-Both are generated from `tools/content.py`, so copy edits apply to both. Prototype
-B is noindexed, disallowed in `robots.txt` and excluded from the sitemap.
+Prototype B ("Atelier": dark-first, vertical nav rail, Cormorant Garamond display
+type, hairline rules) has been removed. It is recoverable from git history at
+commit `e72f021` if it is ever wanted again:
 
-Once a direction is chosen, promote the winner to the root and delete the other
-generator plus its stylesheet.
+```bash
+git checkout e72f021 -- prototype-b tools/build_site_b.py tools/layout_b.py assets/css/site-b.css
+```
