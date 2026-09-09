@@ -25,6 +25,26 @@ supabase/migrations/  database schema
 tools/                site generator (see below)
 ```
 
+## Two design directions
+
+The site root is **Prototype A** (Dribbble-derived: rounded cards, pill nav,
+geometric sans). `/prototype-b/` is **Prototype B** ("Atelier": dark-first,
+vertical nav rail, serif display type, hairline rules). Both render the same
+content from `tools/content.py`. See [DEPLOY.md](DEPLOY.md).
+
+```bash
+python tools/build_site.py      # prototype A -> repository root
+python tools/build_site_b.py    # prototype B -> /prototype-b/
+```
+
+## Content rules
+
+Everything factual on this site must be traceable to one of the two client
+profile PDFs. No invented dates, floor areas, prices, durations, project counts
+or client quotes — if the studio cannot supply a figure, the field stays empty
+rather than being filled with a plausible guess. `tools/content.py` carries this
+rule at the top; please keep it.
+
 ## Editing content
 
 All copy, project data, service descriptions and per-page SEO live in
@@ -37,8 +57,10 @@ python tools/build_site.py
 That rewrites every HTML page, `sitemap.xml`, `robots.txt` and `llms.txt`.
 Do not hand-edit the generated HTML — the next build overwrites it.
 
-To add or replace photography, add the slug to `CURATED` in
-[`tools/build_images.py`](tools/build_images.py) and run:
+Photography is extracted straight from the two client profile PDFs. Put them in
+`source/` (git-ignored), add the slug to `CURATED` in
+[`tools/build_images.py`](tools/build_images.py) as `(document, page, index)`,
+then run:
 
 ```bash
 python tools/build_images.py
@@ -63,6 +85,12 @@ the publishable key in `assets/js/config.js` cannot be used to read submissions.
 in [`supabase/migrations/0001_enquiries.sql`](supabase/migrations/0001_enquiries.sql).
 
 Read enquiries from the Supabase dashboard, or with a service-role key from a server.
+
+## Checks
+
+```bash
+python tools/contrast.py       # WCAG contrast for the palette, both themes
+```
 
 ## SEO / GEO
 
