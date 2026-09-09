@@ -213,7 +213,7 @@
 
       send(payload).then(function () {
         form.reset();
-        status.textContent = "Thank you. Your enquiry has reached the studio and we will reply within one business day.";
+        status.textContent = "Thank you. Your enquiry has reached the studio and we will be in touch.";
         status.classList.add("is-ok");
       }).catch(function (err) {
         console.error("[hst] enquiry failed", err);
