@@ -29,7 +29,7 @@ def link_arrow(label, href, attrs=""):
 
 def head(*, title, meta, url, image=None, jsonld=None, robots=None, prototype=True):
     """Prototype B is a design preview: always noindex so it cannot compete with the live site."""
-    og_img = image or img_url("hero/hero-architecture-dark", 800)
+    og_img = image or f'{SITE["domain"]}/assets/img/hero/hero-architecture-dark.jpg'
     return f'''<!doctype html>
 <html lang="en" data-theme="dark">
 <head>
@@ -54,22 +54,22 @@ def head(*, title, meta, url, image=None, jsonld=None, robots=None, prototype=Tr
 <div class="proto-flag">Prototype&nbsp;B &mdash; Atelier &middot; <a href="/">see Prototype&nbsp;A</a></div>'''
 
 
-def rail(active):
+def sidebar(active):
     items = []
     for i, n in enumerate(NAV):
         cur = ' aria-current="page"' if n["key"] == active else ""
         items.append(
             f'<li><a href="{PREFIX}{n["url"]}"{cur}>'
-            f'<span class="rail__n">{i+1:02d}</span><span class="rail__t">{esc(n["label"])}</span></a></li>')
+            f'<span class="sidebar__n">{i+1:02d}</span><span class="sidebar__t">{esc(n["label"])}</span></a></li>')
     return f'''
-<aside class="rail" aria-label="Primary">
-  <a class="rail__brand" href="{PREFIX}/" aria-label="{esc(SITE['name'])} — home">
+<aside class="sidebar" aria-label="Primary">
+  <a class="sidebar__brand" href="{PREFIX}/" aria-label="{esc(SITE['name'])} — home">
     <img src="/assets/img/brand/logo-light.svg" alt="{esc(SITE['name'])}" width="236" height="134">
   </a>
-  <nav class="rail__nav"><ul>{"".join(items)}</ul></nav>
-  <div class="rail__foot">
-    <button class="rail__toggle" data-theme-toggle type="button" aria-label="Switch theme" aria-pressed="true">{icon("sun")}{icon("moon")}</button>
-    <a class="rail__tel" href="tel:{SITE['phone_link']}">{esc(SITE['phone_display'])}</a>
+  <nav class="sidebar__nav"><ul>{"".join(items)}</ul></nav>
+  <div class="sidebar__foot">
+    <button class="sidebar__toggle" data-theme-toggle type="button" aria-label="Switch theme" aria-pressed="true">{icon("sun")}{icon("moon")}</button>
+    <a class="sidebar__tel" href="tel:{SITE['phone_link']}">{esc(SITE['phone_display'])}</a>
   </div>
 </aside>
 
@@ -116,18 +116,17 @@ def footer():
       <a class="footer__mail" href="mailto:{SITE['email']}">{SITE['email']}</a>
     </div>
     <div class="footer__cols">
-      <div><h4>Services</h4><nav class="footer__links">{svc_links}</nav></div>
-      <div><h4>Studio</h4><nav class="footer__links">
+      <div><h3 class="footer__h">Services</h3><nav class="footer__links">{svc_links}</nav></div>
+      <div><h3 class="footer__h">Studio</h3><nav class="footer__links">
         <a href="{PREFIX}/projects/">Projects</a><a href="{PREFIX}/about/">About</a><a href="{PREFIX}/contact/">Contact</a>
       </nav></div>
-      <div><h4>Visit</h4><div class="footer__links">
+      <div><h3 class="footer__h">Visit</h3><div class="footer__links">
         <span>{esc(SITE['address_line'])}<br>{esc(SITE['address_locality'])}, UAE</span>
         <a href="tel:{SITE['phone_link']}">{esc(SITE['phone_display'])}</a>
         <a href="tel:{SITE['landline_link']}">{esc(SITE['landline_display'])}</a>
       </div></div>
-      <div><h4>Follow</h4><div class="footer__links">
+      <div><h3 class="footer__h">Follow</h3><div class="footer__links">
         <a href="{SITE['socials']['instagram']}" rel="noopener nofollow" target="_blank">Instagram</a>
-        <a href="{SITE['socials']['linkedin']}" rel="noopener nofollow" target="_blank">LinkedIn</a>
         <a href="https://wa.me/{SITE['phone_link'].lstrip('+')}" rel="noopener nofollow" target="_blank">WhatsApp</a>
       </div></div>
     </div>
