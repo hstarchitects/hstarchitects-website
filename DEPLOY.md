@@ -6,7 +6,8 @@
 |---|---|---|
 | Repository | [hstarchitects/hstarchitects-website](https://github.com/hstarchitects/hstarchitects-website) | `hstarchitects` |
 | Hosting | Vercel project `hstarchitects-website` | `hstarchitects` (Hobby) |
-| Live URL | https://hstarchitects-website.vercel.app | |
+| Live URL | https://hstarchitects.vercel.app | |
+| Also serves | https://hstarchitects-website.vercel.app | |
 | Database | Supabase project `mhfempltoebztrvybidb` | org `hstarchitects` |
 | Domain | hstarchitects.com | GoDaddy |
 
@@ -18,9 +19,14 @@ other project — its own GitHub user, its own Vercel team, its own Supabase org
 
 ## Remaining step: point the domain at Vercel
 
+The site is live on `hstarchitects.vercel.app` in the meantime.
+
 `hstarchitects.com` is added to the Vercel project but still resolves to a
 Shopify store that returns "Store unavailable". Two records in GoDaddy need to
 change. **Leave every other record alone** — the domain carries live Zoho email.
+
+Note: saving a DNS change in GoDaddy triggers an SMS two-factor prompt, so
+someone with the phone has to be present for this step.
 
 In GoDaddy → Domain Portfolio → hstarchitects.com → DNS:
 
@@ -80,9 +86,11 @@ SELECT as anon              []          (row-level security blocks it)
 INSERT with a short message 400         (check constraint)
 ```
 
+End-to-end from the deployed site was tested and the row arrived. Both test rows
+have been deleted, so the table starts empty.
+
 Read enquiries in the Supabase dashboard under Table Editor → `enquiries`, or
-from a server using the secret key. One test row from setup is in the table and
-can be deleted.
+from a server using the secret key.
 
 ## Design direction
 
