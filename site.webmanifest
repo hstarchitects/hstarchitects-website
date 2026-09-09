@@ -1,0 +1,25 @@
+{
+  "name": "HST Architects",
+  "short_name": "HST",
+  "description": "HST Architects is a Dubai interior design, renovation and landscaping studio delivering turnkey villas, offices, showrooms and outdoor spaces across the UAE.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#F1EDE4",
+  "theme_color": "#182331",
+  "lang": "en-AE",
+  "dir": "ltr",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png"
+    }
+  ]
+}

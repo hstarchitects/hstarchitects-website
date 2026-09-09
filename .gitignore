@@ -1,0 +1,16 @@
+# OS / editor
+Thumbs.db
+.DS_Store
+*.swp
+.vscode/
+.idea/
+
+# Python
+__pycache__/
+*.py[cod]
+
+# local only
+.env
+.env.local
+.vercel/
+node_modules/
