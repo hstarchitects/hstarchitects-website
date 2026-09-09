@@ -31,6 +31,12 @@ def img(key, alt, sizes="100vw", cls="", loading="lazy", priority=False, style="
     return (f'<picture><source type="image/webp" srcset="{webp}" sizes="{sizes}">'
             f'<img {" ".join(attrs)}></picture>')
 
+def og_url(key):
+    """Social-card image. Always JPEG — LinkedIn and WhatsApp do not decode WebP."""
+    if key not in MANIFEST:
+        raise KeyError(key)
+    return f'{SITE["domain"]}/assets/img/{key}.jpg'
+
 def img_url(key, w=1280):
     m = MANIFEST.get(key)
     if not m: raise KeyError(key)
@@ -79,7 +85,7 @@ FONTS = ("https://fonts.googleapis.com/css2?"
 
 def head(*, title, meta, url, image=None, jsonld=None, robots=None, prototype=False):
     canonical = SITE["domain"] + url
-    og_img = image or img_url("hero/hero-pool-dusk", 1280)
+    og_img = image or og_url("hero/hero-pool-dusk")
     robots_tag = robots or "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1"
     blocks = "".join(
         f'<script type="application/ld+json">{json.dumps(b, ensure_ascii=False, separators=(",", ":"))}</script>'
@@ -106,6 +112,7 @@ def head(*, title, meta, url, image=None, jsonld=None, robots=None, prototype=Fa
 <meta property="og:description" content="{esc(meta)}">
 <meta property="og:url" content="{canonical}">
 <meta property="og:image" content="{og_img}">
+<meta property="og:image:type" content="image/jpeg">
 <meta property="og:image:alt" content="{esc(SITE['name'])} — {esc(SITE['tagline'])}">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="{esc(title)}">
@@ -118,7 +125,7 @@ def head(*, title, meta, url, image=None, jsonld=None, robots=None, prototype=Fa
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="{FONTS}">
 <link rel="stylesheet" href="/assets/css/site.css">
-<script>(function(){{try{{var t=localStorage.getItem("hst-theme")||(matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light");document.documentElement.setAttribute("data-theme",t);}}catch(e){{}}}})();</script>
+<script>(function(){{var r=document.documentElement;r.className+=" js";try{{var t=localStorage.getItem("hst-theme")||(matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light");r.setAttribute("data-theme",t);}}catch(e){{}}}})();</script>
 {blocks}
 </head>
 <body>
@@ -196,16 +203,15 @@ def footer():
         <p>{esc(SITE['short_desc'])}</p>
         <div class="footer__social" style="margin-top:1.5rem">
           <a href="{SITE['socials']['instagram']}" rel="noopener noreferrer nofollow" target="_blank" aria-label="HST Architects on Instagram">{icon("instagram")}</a>
-          <a href="{SITE['socials']['linkedin']}" rel="noopener noreferrer nofollow" target="_blank" aria-label="HST Architects on LinkedIn">{icon("linkedin")}</a>
           <a href="https://wa.me/{SITE['phone_link'].lstrip('+')}" rel="noopener noreferrer nofollow" target="_blank" aria-label="Message HST Architects on WhatsApp">{icon("whatsapp")}</a>
         </div>
       </div>
       <div>
-        <h4>Services</h4>
+        <h3 class="footer__h">Services</h3>
         <nav class="footer__links" aria-label="Services">{svc_links}<a href="/services/">All services</a></nav>
       </div>
       <div>
-        <h4>Studio</h4>
+        <h3 class="footer__h">Studio</h3>
         <nav class="footer__links" aria-label="Studio">
           <a href="/projects/">Projects</a>
           <a href="/about/">About us</a>
@@ -213,13 +219,13 @@ def footer():
         </nav>
       </div>
       <div>
-        <h4>Visit the studio</h4>
+        <h3 class="footer__h">Visit the studio</h3>
         <div class="footer__links">
           <span>{esc(SITE['address_line'])}<br>{esc(SITE['address_locality'])}, United Arab Emirates</span>
           <a href="tel:{SITE['phone_link']}">{SITE['phone_display']}</a>
           <a href="tel:{SITE['landline_link']}">{SITE['landline_display']}</a>
           <a href="mailto:{SITE['email']}">{SITE['email']}</a>
-          <span class="small" style="opacity:.7">Saturday to Thursday, 9am – 6pm</span>
+          <span class="small" style="opacity:.7">{esc(SITE["hours_display"])}</span>
         </div>
       </div>
     </div>
@@ -303,11 +309,11 @@ def faq_ld(faqs):
         ],
     }
 
-def cta_band(title_a, title_b, body, image="hero/hero-villa-entrance"):
+def cta_band(title_a, title_b, body, image="services/landscape-roof-garden"):
     return f'''<section class="section">
   <div class="wrap">
     <div class="cta reveal">
-      <div class="cta__media">{img(image, "HST Architects project handover — a lit villa at dusk", sizes="100vw")}</div>
+      <div class="cta__media">{img(image, "A completed HST Architects roof garden in Dubai, lit at night", sizes="(max-width:900px) 100vw, 1560px")}</div>
       <span class="eyebrow on-dark">Start here</span>
       <h2 class="h1 split-head">{esc(title_a)} <span class="lite" style="color:rgba(255,255,255,.6)">{esc(title_b)}</span></h2>
       <p>{esc(body)}</p>
@@ -340,25 +346,27 @@ def org_ld():
         "alternateName": SITE["legal"],
         "url": SITE["domain"] + "/",
         "logo": {"@type": "ImageObject", "url": SITE["domain"] + "/assets/img/brand/logo.svg"},
-        "image": img_url("hero/hero-pool-dusk", 1280),
+        "image": og_url("hero/hero-pool-dusk"),
         "description": SITE["short_desc"],
-        "foundingDate": SITE["founded"],
         "telephone": SITE["phone_display"],
         "email": SITE["email"],
-        "priceRange": "$$$",
         "currenciesAccepted": "AED",
         "address": {
             "@type": "PostalAddress",
             "streetAddress": SITE["address_line"],
             "addressLocality": SITE["address_locality"],
             "addressRegion": SITE["address_region"],
-            "postalCode": SITE["postal"],
             "addressCountry": SITE["address_country"],
         },
         "geo": {"@type": "GeoCoordinates", "latitude": SITE["geo"]["lat"], "longitude": SITE["geo"]["lng"]},
-        "openingHours": SITE["hours"],
+        "openingHoursSpecification": [{
+            "@type": "OpeningHoursSpecification",
+            "dayOfWeek": SITE["hours_days"],
+            "opens": SITE["hours_open"],
+            "closes": SITE["hours_close"],
+        }],
         "areaServed": [{"@type": "City", "name": a} for a in SITE["areas"]],
-        "sameAs": [SITE["socials"]["instagram"], SITE["socials"]["linkedin"]],
+        "sameAs": [SITE["socials"]["instagram"]],
         "knowsAbout": [
             "Interior design", "Interior fit-out", "Villa renovation", "Office fit-out",
             "Landscape design", "Swimming pool construction", "Joinery and millwork",

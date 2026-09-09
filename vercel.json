@@ -4,11 +4,20 @@
   "trailingSlash": true,
   "headers": [
     {
-      "source": "/assets/(.*)",
+      "source": "/assets/img/(.*)",
       "headers": [
         {
           "key": "Cache-Control",
           "value": "public, max-age=31536000, immutable"
+        }
+      ]
+    },
+    {
+      "source": "/assets/(css|js)/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=600, stale-while-revalidate=86400"
         }
       ]
     },
@@ -40,47 +49,77 @@
   ],
   "redirects": [
     {
-      "source": "/home",
-      "destination": "/",
-      "permanent": true
-    },
-    {
       "source": "/index.html",
       "destination": "/",
       "permanent": true
     },
     {
-      "source": "/services/interior",
+      "source": "/home/",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/services/interior/",
       "destination": "/services/interior-design/",
       "permanent": true
     },
     {
-      "source": "/services/fit-out",
+      "source": "/services/interiors/",
+      "destination": "/services/interior-design/",
+      "permanent": true
+    },
+    {
+      "source": "/services/fit-out/",
       "destination": "/services/renovation/",
       "permanent": true
     },
     {
-      "source": "/services/landscape",
+      "source": "/services/fitout/",
+      "destination": "/services/renovation/",
+      "permanent": true
+    },
+    {
+      "source": "/services/landscape/",
       "destination": "/services/landscaping/",
       "permanent": true
     },
     {
-      "source": "/portfolio",
+      "source": "/services/landscaping-dubai/",
+      "destination": "/services/landscaping/",
+      "permanent": true
+    },
+    {
+      "source": "/portfolio/",
       "destination": "/projects/",
       "permanent": true
     },
     {
-      "source": "/work",
+      "source": "/work/",
       "destination": "/projects/",
       "permanent": true
     },
     {
-      "source": "/about-us",
+      "source": "/our-work/",
+      "destination": "/projects/",
+      "permanent": true
+    },
+    {
+      "source": "/gallery/",
+      "destination": "/projects/",
+      "permanent": true
+    },
+    {
+      "source": "/about-us/",
       "destination": "/about/",
       "permanent": true
     },
     {
-      "source": "/contact-us",
+      "source": "/contact-us/",
+      "destination": "/contact/",
+      "permanent": true
+    },
+    {
+      "source": "/get-a-quote/",
       "destination": "/contact/",
       "permanent": true
     }

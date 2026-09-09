@@ -158,13 +158,19 @@
       var w = field.closest(".field");
       w.classList.add("field--error");
       var e = w.querySelector(".field__err");
-      if (e && msg) e.textContent = msg;
+      if (e) {
+        if (msg) e.textContent = msg;
+        // give the message an id and point the input at it so screen readers read it
+        if (!e.id) e.id = (field.id || field.name) + "-err";
+        field.setAttribute("aria-describedby", e.id);
+      }
       field.setAttribute("aria-invalid", "true");
     }
     function clear(field) {
       var w = field.closest(".field");
       w.classList.remove("field--error");
       field.removeAttribute("aria-invalid");
+      field.removeAttribute("aria-describedby");
     }
     form.querySelectorAll("input, textarea, select").forEach(function (f) {
       f.addEventListener("input", function () { clear(f); });
@@ -211,7 +217,10 @@
         status.classList.add("is-ok");
       }).catch(function (err) {
         console.error("[hst] enquiry failed", err);
-        status.innerHTML = 'We could not send that from the site. Please email <a href="mailto:info@hstglobal.co">info@hstglobal.co</a> or call <a href="tel:+971503999314">+971 50 399 9314</a>.';
+        var mail = doc.querySelector('a[href^="mailto:"]');
+        var tel = doc.querySelector('a[href^="tel:"]');
+        status.innerHTML = "We could not send that from the site. Please email " +
+          (mail ? mail.outerHTML : "the studio") + " or call " + (tel ? tel.outerHTML : "us") + " instead.";
         status.classList.add("is-err");
       }).finally(function () {
         submit.disabled = false;

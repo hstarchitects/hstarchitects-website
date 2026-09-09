@@ -3,10 +3,10 @@
 import os, sys, json, shutil, datetime
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-from content import (SITE, NAV, SERVICES, PROJECTS, PROCESS, STATS,
-                     TESTIMONIALS, WHY_US, HOME_FAQS, PAGES_SEO)
+from content import (SITE, NAV, SERVICES, PROJECTS, PROCESS, SECTORS,
+                     VISUALS, WHY_US, HOME_FAQS, PAGES_SEO)
 import layout as L
-from layout import (esc, img, img_url, icon, btn, link_arrow, arrow_badge, head, header,
+from layout import (esc, img, img_url, og_url, icon, btn, link_arrow, arrow_badge, head, header,
                     drawer, footer, tail, breadcrumbs, breadcrumb_ld, faq_block, faq_ld,
                     cta_band, related_block, org_ld, website_ld, ROOT)
 
@@ -33,9 +33,16 @@ def svc(key):
 def build_home():
     seo = PAGES_SEO["home"]
 
+    # every figure below is counted from the portfolio itself, never asserted
+    facts = [
+        (str(len(PROJECTS)), "Projects in this portfolio"),
+        ("3", "Disciplines in-house"),
+        (str(len({p["cat"] for p in PROJECTS})), "Sectors delivered"),
+        ("2", "Emirates covered"),
+    ]
     stats = "".join(
-        f'<div class="hero-stats__item"><div class="hero-stats__v">{esc(s["v"])}</div>'
-        f'<div class="hero-stats__l">{esc(s["l"])}</div></div>' for s in STATS)
+        f'<div class="hero-stats__item"><div class="hero-stats__v">{esc(v)}</div>'
+        f'<div class="hero-stats__l">{esc(l)}</div></div>' for v, l in facts)
 
     svc_cards = ""
     for s in SERVICES:
@@ -67,11 +74,10 @@ def build_home():
   <h3 class="h4" style="margin:1.05rem 0 .5rem">{esc(w["t"])}</h3>
   <p class="small muted">{esc(w["d"])}</p></div>''' for i, w in enumerate(WHY_US))
 
-    quotes = "".join(f'''<figure class="quote-card glass reveal" data-d="{i+1}" style="margin:0">
-  <div class="quote-card__mark" aria-hidden="true">&ldquo;</div>
-  <blockquote style="margin:0"><p>{esc(t["q"])}</p></blockquote>
-  <footer><b>{esc(t["n"])}</b><small>{esc(t["r"])}</small></footer></figure>'''
-  for i, t in enumerate(TESTIMONIALS))
+    sectors = "".join(f'''<a class="tile tile--wide reveal" data-d="{(i%4)+1}" href="/projects/">
+  {img(x["img"], x["t"] + " project by HST Architects in the UAE", sizes="(max-width:620px) 92vw, (max-width:900px) 46vw, 31vw")}
+  <div class="tile__label"><div><h3>{esc(x["t"])}</h3><p>{esc(x["d"])}</p></div>{arrow_badge()}</div></a>'''
+  for i, x in enumerate(SECTORS))
 
     disciplines = ["Interior Design", "Fit-Out", "Landscaping", "Joinery", "MEP Services",
                    "3D Visualisation", "Space Planning", "Pools & Water Features",
@@ -84,11 +90,11 @@ def build_home():
            "name": seo["title"], "description": seo["meta"],
            "isPartOf": {"@id": SITE["domain"] + "/#website"},
            "about": {"@id": SITE["domain"] + "/#organization"},
-           "primaryImageOfPage": {"@type": "ImageObject", "url": img_url("hero/hero-pool-dusk", 1280)},
+           "primaryImageOfPage": {"@type": "ImageObject", "url": og_url("hero/hero-pool-dusk")},
            "speakable": {"@type": "SpeakableSpecification", "cssSelector": [".hero h1", ".hero__sub"]}}]
 
     html_out = head(title=seo["title"], meta=seo["meta"], url="/", jsonld=ld,
-                    image=img_url("hero/hero-pool-dusk", 1280)) + header("home") + drawer("home") + f'''
+                    image=og_url("hero/hero-pool-dusk")) + header("home") + drawer("home") + f'''
 <main id="main">
 
 <section class="hero">
@@ -103,7 +109,7 @@ def build_home():
         <div class="trust-chip__avatars">
           <span style="background:#B66B55">HS</span><span style="background:#182331">DB</span><span style="background:#7C8A99">AE</span>
         </div>
-        <div class="trust-chip__txt"><b>180+ projects delivered</b><small>Dubai &amp; the wider UAE since {esc(SITE["founded"])}</small></div>
+        <div class="trust-chip__txt"><b>Design and build under one roof</b><small>Part of {esc(SITE["legal"])}, Downtown Dubai</small></div>
       </div>
 
       <div class="hero__body">
@@ -200,15 +206,17 @@ def build_home():
   </div>
 </section>
 
-<section class="section" aria-labelledby="test-h">
+<section class="section" aria-labelledby="sect-h">
   <div class="wrap">
     <div class="sec-head reveal">
       <div class="sec-head__text">
-        <span class="eyebrow">Clients</span>
-        <h2 class="h2 split-head" id="test-h">Turning vision into reality, <span class="lite">every detail considered</span></h2>
+        <span class="eyebrow">Sectors</span>
+        <h2 class="h2 split-head" id="sect-h">The kinds of space <span class="lite">we work on</span></h2>
+        <p class="lede">Residential, workplace, retail, hospitality, fitness and landscape — every one of these is represented in the portfolio.</p>
       </div>
+      {btn("See the portfolio", "/projects/", "ghost")}
     </div>
-    <div class="quotes">{quotes}</div>
+    <div class="grid g-3">{sectors}</div>
   </div>
 </section>
 
@@ -216,7 +224,7 @@ def build_home():
            "The questions we are asked most often about working with a Dubai design-and-build studio.")}
 
 {cta_band("Tell us about the space.", "We will tell you what it needs.",
-          "Send the property details and what you want to change. We arrange a site visit within a few days and follow it with a written scope and a fixed fee.")}
+          "Send the property details and what you want to change. We arrange a site visit and follow it with a written scope and a fixed fee.")}
 
 {related_block([
   ("Interior design in Dubai", "Concept, 3D visuals and full FF&E", "/services/interior-design/"),
@@ -267,7 +275,7 @@ def build_services_index():
                         "areaServed": {"@type": "City", "name": "Dubai"}} for s in SERVICES]}]
 
     html_out = head(title=seo["title"], meta=seo["meta"], url="/services/", jsonld=ld,
-                    image=img_url("services/renovation-boardroom", 1280)) + header("services") + drawer("services") + f'''
+                    image=og_url("services/renovation-boardroom")) + header("services") + drawer("services") + f'''
 <main id="main">
 <section class="page-head">
   <div class="wrap">
@@ -326,7 +334,7 @@ def build_service(s):
 
     proj_cards = "".join(f'''<a class="tile" href="/projects/{p["slug"]}/">
   {img(p["img"], p["alt"], sizes="(max-width:620px) 92vw, 31vw")}
-  <div class="tile__label"><div><h3>{esc(p["title"])}</h3><p>{esc(p["loc"])} &middot; {esc(p["year"])}</p></div>{arrow_badge()}</div></a>'''
+  <div class="tile__label"><div><h3>{esc(p["title"])}</h3><p>{esc(p["loc"])}</p></div>{arrow_badge()}</div></a>'''
   for p in rel_projects)
 
     ld = [org_ld(), breadcrumb_ld(trail), faq_ld(s["faqs"]),
@@ -340,13 +348,13 @@ def build_service(s):
            "hasOfferCatalog": {"@type": "OfferCatalog", "name": s["title"] + " capabilities",
              "itemListElement": [{"@type": "Offer", "itemOffered": {"@type": "Service", "name": c["t"], "description": c["d"]}}
                                  for c in s["capabilities"]]},
-           "image": img_url(s["hero_img"], 1280)},
+           "image": og_url(s["hero_img"])},
           {"@context": "https://schema.org", "@type": "WebPage",
            "url": SITE["domain"] + s["url"], "name": s["seo_title"], "description": s["meta"],
            "speakable": {"@type": "SpeakableSpecification", "cssSelector": ["h1", ".lede"]}}]
 
     html_out = head(title=s["seo_title"], meta=s["meta"], url=s["url"], jsonld=ld,
-                    image=img_url(s["hero_img"], 1280)) + header("services") + drawer("services") + f'''
+                    image=og_url(s["hero_img"])) + header("services") + drawer("services") + f'''
 <main id="main">
 <section class="page-head">
   <div class="wrap">
@@ -437,7 +445,7 @@ def build_projects_index():
   <a href="/projects/{p["slug"]}/" style="display:block">
     <div class="card__media">{img(p["img"], p["alt"], sizes="(max-width:620px) 92vw, (max-width:900px) 46vw, 31vw")}</div>
     <div class="card__body">
-      <div class="card__meta"><span>{esc(p["cat"])}</span><span>{esc(p["year"])}</span></div>
+      <div class="card__meta"><span>{esc(p["cat"])}</span><span>{esc(p["loc"])}</span></div>
       <h2 class="h3" style="margin-top:.6rem">{esc(p["title"])}</h2>
       <p class="small muted">{esc(p["blurb"])}</p>
       <div style="margin-top:1.1rem;display:flex;justify-content:space-between;align-items:center">
@@ -457,7 +465,7 @@ def build_projects_index():
                for i, p in enumerate(PROJECTS)]}}]
 
     html_out = head(title=seo["title"], meta=seo["meta"], url="/projects/", jsonld=ld,
-                    image=img_url("projects/proj-springfield-green", 1280)) + header("projects") + drawer("projects") + f'''
+                    image=og_url("projects/proj-cafe-greenery")) + header("projects") + drawer("projects") + f'''
 <main id="main">
 <section class="page-head">
   <div class="wrap">
@@ -467,8 +475,8 @@ def build_projects_index():
         <span class="eyebrow">Portfolio</span>
         <h1 class="h1 split-head">Selected work <span class="lite">across the UAE</span></h1>
       </div>
-      <p class="lede">Villas, offices, showrooms, hospitality and gardens — delivered by HST Architects between 2018 and today.
-        Each entry lists scope, area and location so you can judge whether we have built at your scale.</p>
+      <p class="lede">Villas, offices, showrooms, hospitality and gardens delivered by HST Architects across Dubai and Abu Dhabi.
+        Each entry lists the scope and location so you can see the kind of work we take on.</p>
     </div>
   </div>
 </section>
@@ -498,18 +506,32 @@ def build_project(p, prev_p, next_p):
     url = f'/projects/{p["slug"]}/'
     trail = [("Home", "/"), ("Projects", "/projects/"), (p["title"], url)]
     s = svc(p["service"])
-    title = f'{p["title"]} — {p["cat"]} Project in {p["loc"].split(",")[0]} | HST Architects'
-    meta = f'{p["blurb"]} {p["cat"]} project by HST Architects in {p["loc"]}, completed {p["year"]}. Scope: {p["scope"]}.'
+    # keep titles under ~60 chars and descriptions under ~155 so neither is truncated in the SERP
+    title = f'{p["title"]} | HST Architects'
+    if len(title) > 60:
+        title = f'{p["title"]} | HST'
+    meta = p["blurb"]
+    if len(meta) < 120:
+        meta += f' {p["cat"]} project in {p["loc"]}.'
+    meta = meta[:155].rsplit(" ", 1)[0].rstrip(" ,.") + "." if len(meta) > 155 else meta
+
+    year_row = (f'<div class="spec__i"><b>Completed</b><span>{esc(p["year"])}</span></div>'
+                if p.get("year") else "")
+    year_pill = f'<span class="pill">{esc(p["year"])}</span>' if p.get("year") else ""
+    eyebrow = f'{esc(p["cat"])} &middot; {esc(p["year"])}' if p.get("year") else esc(p["cat"])
 
     gal = "".join(f'<figure>{img(k, a, sizes="(max-width:620px) 92vw, (max-width:900px) 46vw, 31vw")}</figure>'
                   for k, a in p["gallery"])
 
+    idx = PROJECTS.index(p)
     others = [o for o in PROJECTS if o["slug"] != p["slug"] and o["cat"] == p["cat"]][:3]
     if len(others) < 3:
-        others += [o for o in PROJECTS if o["slug"] != p["slug"] and o not in others][:3 - len(others)]
+        # walk forward from this project so every case study gets linked from somewhere
+        rotated = PROJECTS[idx + 1:] + PROJECTS[:idx]
+        others += [o for o in rotated if o["slug"] != p["slug"] and o not in others][:3 - len(others)]
     more = "".join(f'''<a class="tile" href="/projects/{o["slug"]}/">
   {img(o["img"], o["alt"], sizes="(max-width:620px) 92vw, 31vw")}
-  <div class="tile__label"><div><h3>{esc(o["title"])}</h3><p>{esc(o["cat"])} &middot; {esc(o["year"])}</p></div>{arrow_badge()}</div></a>'''
+  <div class="tile__label"><div><h3>{esc(o["title"])}</h3><p>{esc(o["cat"])} &middot; {esc(o["loc"])}</p></div>{arrow_badge()}</div></a>'''
   for o in others)
 
     ld = [org_ld(), breadcrumb_ld(trail),
@@ -517,13 +539,13 @@ def build_project(p, prev_p, next_p):
            "@id": SITE["domain"] + url + "#project",
            "name": p["title"], "description": p["blurb"],
            "url": SITE["domain"] + url,
-           "dateCreated": p["year"],
+           **({"dateCreated": p["year"]} if p.get("year") else {}),
            "creator": {"@id": SITE["domain"] + "/#organization"},
            "locationCreated": {"@type": "Place", "name": p["loc"],
              "address": {"@type": "PostalAddress", "addressLocality": p["loc"].split(",")[0],
                          "addressRegion": "Dubai", "addressCountry": "AE"}},
            "genre": p["cat"], "keywords": f'{p["cat"]}, {s["title"]}, {p["loc"]}, Dubai',
-           "image": [img_url(p["img"], 1280)] + [img_url(k, 1280) for k, _ in p["gallery"]],
+           "image": [og_url(p["img"])] + [og_url(k) for k, _ in p["gallery"]],
            "about": {"@type": "Service", "name": s["title"], "url": SITE["domain"] + s["url"]}}]
 
     nav_links = ""
@@ -531,14 +553,14 @@ def build_project(p, prev_p, next_p):
     if next_p: nav_links += f'<a class="link-arrow" href="/projects/{next_p["slug"]}/"><span>{esc(next_p["title"])}</span>{icon("arrow-r")}</a>'
 
     html_out = head(title=title, meta=meta, url=url, jsonld=ld,
-                    image=img_url(p["img"], 1280)) + header("projects") + drawer("projects") + f'''
+                    image=og_url(p["img"])) + header("projects") + drawer("projects") + f'''
 <main id="main">
 <section class="page-head">
   <div class="wrap">
     {breadcrumbs(trail)}
     <div class="page-head__grid">
       <div>
-        <span class="eyebrow">{esc(p["cat"])} &middot; {esc(p["year"])}</span>
+        <span class="eyebrow">{eyebrow}</span>
         <h1 class="h1 split-head">{esc(p["title"])}</h1>
       </div>
       <p class="lede">{esc(p["blurb"])}</p>
@@ -558,8 +580,8 @@ def build_project(p, prev_p, next_p):
   <div class="wrap">
     <div class="spec reveal">
       <div class="spec__i"><b>Location</b><span>{esc(p["loc"])}</span></div>
-      <div class="spec__i"><b>Completed</b><span>{esc(p["year"])}</span></div>
-      <div class="spec__i"><b>Area</b><span>{esc(p["area"])}</span></div>
+      {year_row}
+      <div class="spec__i"><b>Sector</b><span>{esc(p["cat"])}</span></div>
       <div class="spec__i"><b>Discipline</b><span><a href="{s["url"]}" style="color:inherit;border-bottom:1px solid var(--line-strong)">{esc(s["title"])}</a></span></div>
     </div>
   </div>
@@ -576,8 +598,7 @@ def build_project(p, prev_p, next_p):
            required, site execution and handover. The discipline lead for this project was
            <a href="{s["url"]}">{esc(s["title"].lower())}</a>, supported by our in-house technical services team.</p>
         <div class="pill-list" style="margin-top:1.6rem">
-          <span class="pill">{esc(p["cat"])}</span><span class="pill">{esc(p["loc"])}</span>
-          <span class="pill">{esc(p["year"])}</span><span class="pill">{esc(p["area"])}</span>
+          <span class="pill">{esc(p["cat"])}</span><span class="pill">{esc(p["loc"])}</span>{year_pill}
         </div>
         <div style="margin-top:2rem">{btn("Start a similar project", "/contact/", "accent")}</div>
       </div>
@@ -613,7 +634,7 @@ def build_project(p, prev_p, next_p):
 </section>
 
 {cta_band("Like what you see?", "Let us do it for your space.",
-          "Send the property details and a note about what you want to change. A site visit usually follows within a few days.")}
+          "Send the property details and a note about what you want to change. We will arrange a site visit from there.")}
 
 {related_block([
   (s["title"], s["short"], s["url"]),
@@ -638,8 +659,12 @@ def build_about():
   <span class="arrow-badge" style="background:var(--accent-soft);color:var(--accent);width:40px;height:40px">{icon("check")}</span>
   <h3 class="h4" style="margin:1.05rem 0 .5rem">{esc(w["t"])}</h3>
   <p class="small muted">{esc(w["d"])}</p></article>''' for i, w in enumerate(WHY_US))
-    stats = "".join(f'<div class="hero-stats__item"><div class="hero-stats__v">{esc(s["v"])}</div>'
-                    f'<div class="hero-stats__l">{esc(s["l"])}</div></div>' for s in STATS)
+    facts = [(str(len(PROJECTS)), "Projects in this portfolio"),
+             ("3", "Disciplines in-house"),
+             (str(len({p["cat"] for p in PROJECTS})), "Sectors delivered"),
+             ("2", "Emirates covered")]
+    stats = "".join(f'<div class="hero-stats__item"><div class="hero-stats__v">{esc(v)}</div>'
+                    f'<div class="hero-stats__l">{esc(l)}</div></div>' for v, l in facts)
 
     about_faqs = [
         {"q": "Is HST Architects a design studio or a contractor?",
@@ -647,10 +672,10 @@ def build_about():
               "company. We produce the design and then execute it with our own technicians and vetted trades under one contract."},
         {"q": "How long has the studio been operating in the UAE?",
          "a": "Since 2015. The practice grew out of building maintenance and technical services work, which is why our drawings "
-              "tend to be more buildable than most: we have spent a decade fixing what other people specified."},
+              "tend to be more buildable than most: the practice grew out of fixing what other people specified."},
         {"q": "Do you take on projects outside Dubai?",
          "a": "Yes. Most of our work is in Dubai, but we deliver selected projects in Abu Dhabi and Sharjah, including the "
-              "GAMA Fashion showroom in Abu Dhabi."},
+              "GAMA Fashion showroom in Abu Dhabi, which is in the portfolio."},
         {"q": "Who will I actually be dealing with?",
          "a": "One project lead from the first site visit to handover. They attend the design meetings and they walk the site, "
               "so you are never re-explaining the project to a new face."},
@@ -662,7 +687,7 @@ def build_about():
            "mainEntity": {"@id": SITE["domain"] + "/#organization"}}]
 
     html_out = head(title=seo["title"], meta=seo["meta"], url="/about/", jsonld=ld,
-                    image=img_url("hero/hero-architecture-dark", 800)) + header("about") + drawer("about") + f'''
+                    image=og_url("hero/hero-architecture-dark")) + header("about") + drawer("about") + f'''
 <main id="main">
 <section class="page-head">
   <div class="wrap">
@@ -773,7 +798,7 @@ def build_contact():
            "mainEntity": {"@id": SITE["domain"] + "/#organization"}}]
 
     html_out = head(title=seo["title"], meta=seo["meta"], url="/contact/", jsonld=ld,
-                    image=img_url("hero/hero-pergola-lounge", 800)) + header("contact") + drawer("contact") + f'''
+                    image=og_url("hero/hero-pergola-lounge")) + header("contact") + drawer("contact") + f'''
 <main id="main">
 <section class="page-head">
   <div class="wrap">
@@ -784,7 +809,7 @@ def build_contact():
         <h1 class="h1 split-head">Tell us about <span class="lite">the space</span></h1>
       </div>
       <p class="lede">The more you can tell us up front — property type, size, timeline, rough budget — the more useful our
-        first reply will be. We answer every enquiry within one business day.</p>
+        first reply will be.</p>
     </div>
   </div>
 </section>
@@ -946,6 +971,20 @@ def build_static():
 </svg>'''
     write("favicon.svg", favicon)
 
+    # iOS composites apple-touch-icons on black and applies its own corner mask,
+    # so this is drawn opaque and square at 4x, then downsampled for clean edges.
+    from PIL import Image, ImageDraw
+    S = 720
+    icon_img = Image.new("RGB", (S, S), "#182331")
+    d = ImageDraw.Draw(icon_img)
+    bar, h_l, h_r, h_top, h_bot = S * 0.072, S * 0.20, S * 0.545, S * 0.28, S * 0.70
+    d.rectangle([h_l, h_top, h_l + bar, h_bot], fill="#F7F3EA")            # H left stem
+    d.rectangle([h_r, h_top, h_r + bar, h_bot], fill="#F7F3EA")            # H right stem
+    d.rectangle([h_l, S * 0.455, h_r + bar, S * 0.455 + bar], fill="#F7F3EA")  # H crossbar
+    d.rectangle([S * 0.20, S * 0.745, S * 0.80, S * 0.745 + bar * 0.62], fill="#B66B55")
+    icon_img.resize((180, 180), Image.LANCZOS).save(
+        os.path.join(ROOT, "apple-touch-icon.png"), "PNG", optimize=True)
+
     manifest = {
         "name": SITE["name"], "short_name": "HST",
         "description": SITE["short_desc"],
@@ -1006,11 +1045,10 @@ Host: {SITE['domain'].replace('https://', '')}
 services company operating from {SITE['address_line']}, {SITE['address_locality']}. The studio delivers design
 and build under one contract: interior design, renovation and fit-out, and landscaping.
 
-- Founded: {SITE['founded']}
 - Location: {SITE['address_line']}, {SITE['address_locality']}, United Arab Emirates
 - Phone: {SITE['phone_display']} / {SITE['landline_display']}
 - Email: {SITE['email']}
-- Hours: Saturday to Thursday, 09:00-18:00 Gulf Standard Time
+- Hours: {SITE['hours_display']} (Gulf Standard Time)
 - Areas served: {", ".join(SITE['areas'])}
 
 ## Services
@@ -1034,8 +1072,14 @@ and build under one contract: interior design, renovation and fit-out, and lands
         "cleanUrls": True,
         "trailingSlash": True,
         "headers": [
-            {"source": "/assets/(.*)",
+            # Images are content-stable: a new photograph gets a new slug.
+            {"source": "/assets/img/(.*)",
              "headers": [{"key": "Cache-Control", "value": "public, max-age=31536000, immutable"}]},
+            # CSS and JS change on every content edit and carry no content hash in
+            # the filename, so they are revalidated rather than pinned for a year.
+            {"source": "/assets/(css|js)/(.*)",
+             "headers": [{"key": "Cache-Control",
+                          "value": "public, max-age=600, stale-while-revalidate=86400"}]},
             {"source": "/(.*)",
              "headers": [
                  {"key": "X-Content-Type-Options", "value": "nosniff"},
@@ -1045,19 +1089,52 @@ and build under one contract: interior design, renovation and fit-out, and lands
                  {"key": "Strict-Transport-Security", "value": "max-age=63072000; includeSubDomains; preload"},
              ]},
         ],
+        # NOTE: trailingSlash normalises "/x" to "/x/" BEFORE redirects are matched,
+        # so every source below must carry the trailing slash or it will never fire.
         "redirects": [
-            {"source": "/home", "destination": "/", "permanent": True},
             {"source": "/index.html", "destination": "/", "permanent": True},
-            {"source": "/services/interior", "destination": "/services/interior-design/", "permanent": True},
-            {"source": "/services/fit-out", "destination": "/services/renovation/", "permanent": True},
-            {"source": "/services/landscape", "destination": "/services/landscaping/", "permanent": True},
-            {"source": "/portfolio", "destination": "/projects/", "permanent": True},
-            {"source": "/work", "destination": "/projects/", "permanent": True},
-            {"source": "/about-us", "destination": "/about/", "permanent": True},
-            {"source": "/contact-us", "destination": "/contact/", "permanent": True},
+        ] + [
+            {"source": src, "destination": dest, "permanent": True}
+            for src, dest in [
+                ("/home/", "/"),
+                ("/services/interior/", "/services/interior-design/"),
+                ("/services/interiors/", "/services/interior-design/"),
+                ("/services/fit-out/", "/services/renovation/"),
+                ("/services/fitout/", "/services/renovation/"),
+                ("/services/landscape/", "/services/landscaping/"),
+                ("/services/landscaping-dubai/", "/services/landscaping/"),
+                ("/portfolio/", "/projects/"),
+                ("/work/", "/projects/"),
+                ("/our-work/", "/projects/"),
+                ("/gallery/", "/projects/"),
+                ("/about-us/", "/about/"),
+                ("/contact-us/", "/contact/"),
+                ("/get-a-quote/", "/contact/"),
+            ]
         ],
     }
     write("vercel.json", json.dumps(vercel, indent=2))
+
+
+def prune_orphans():
+    """Delete generated pages that the current content model no longer produces."""
+    keep = {u for u, _, _ in URLS} | {"/404.html"}
+    removed = []
+    for base in ("projects", "services"):
+        root = os.path.join(ROOT, base)
+        if not os.path.isdir(root):
+            continue
+        for name in sorted(os.listdir(root)):
+            d = os.path.join(root, name)
+            if not os.path.isdir(d):
+                continue
+            if f"/{base}/{name}/" not in keep:
+                shutil.rmtree(d)
+                removed.append(f"/{base}/{name}/")
+    if removed:
+        print(f"Pruned {len(removed)} orphaned page(s):")
+        for r in removed:
+            print("  -", r)
 
 
 def build_sitemap():
@@ -1085,6 +1162,7 @@ def main():
     build_contact()
     build_404()
     build_static()
+    prune_orphans()
     build_sitemap()
     print(f"Built {len(URLS)} indexable pages + static files")
     for u, p, f in URLS:

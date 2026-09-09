@@ -1,0 +1,6 @@
+# Build tooling and client documents must never be served as public URLs.
+tools/
+supabase/
+source/
+.claude/
+README.md
