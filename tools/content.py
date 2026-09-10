@@ -28,7 +28,11 @@ SITE = {
     "phone_link": "+971503999314",
     "landline_display": "+971 4 332 2002",
     "landline_link": "+97143322002",
-    "email": "info@hstglobal.co",
+    # Not from the profile PDFs. The address printed there, info@hstglobal.co,
+    # is undeliverable: hstglobal.co returns NXDOMAIN, so it has no zone at all
+    # and every enquiry sent to it bounced. This address is on our own domain and
+    # is delivered by the ImprovMX forwarder configured for hstarchitects.com.
+    "email": "info@hstarchitects.com",
     "address_line": "Boulevard Plaza Tower 1, Office 1603",
     "address_locality": "Downtown Dubai",
     "address_region": "Dubai",
