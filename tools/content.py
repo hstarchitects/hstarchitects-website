@@ -50,6 +50,12 @@ SITE = {
         "Damac Hills", "District One", "Jumeirah", "Al Barsha", "Al Wasl", "Deira",
         "Abu Dhabi",
     ],
+    # Search Console ownership proof for the https://hstarchitects.com/ URL-prefix
+    # property. Emitted as a meta tag on every page rather than as the HTML file
+    # Google recommends, because vercel.json sets cleanUrls, which 308-redirects
+    # /<token>.html and Google does not follow redirects when it fetches that file.
+    # Removing this un-verifies the property, so leave it in place.
+    "google_site_verification": "a3QYZmgKMLe_y-VVLSbVf4CQhixq44gdcIWkj5sP12I",
     "socials": {
         "instagram": "https://www.instagram.com/hst.arch",
     },
