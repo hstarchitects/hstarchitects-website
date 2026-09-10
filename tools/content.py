@@ -50,6 +50,9 @@ SITE = {
         "Damac Hills", "District One", "Jumeirah", "Al Barsha", "Al Wasl", "Deira",
         "Abu Dhabi",
     ],
+    # Google Analytics 4 measurement ID. The tag is only injected on the live
+    # host, so local builds and Vercel preview deployments never send events.
+    "ga4_id": "G-1EGDSF9VXQ",
     # IndexNow shared secret. Proof of ownership is the matching file served at
     # /<key>.txt, so the key is deliberately public. Rotating it means changing
     # this line and re-running the build; the old file simply stops being served.

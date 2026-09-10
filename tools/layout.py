@@ -132,6 +132,34 @@ FONTS = ("https://fonts.googleapis.com/css2?"
          "family=Montserrat:wght@400;500;600;700&"
          "family=Cormorant+Garamond:ital,wght@0,600;1,600&display=swap")
 
+# Google Analytics. Two deliberate choices are baked in here.
+#
+# The tag only loads on the production host, so `python -m http.server` sessions
+# and Vercel preview builds do not pollute the property with fake sessions.
+#
+# Consent Mode v2 defaults are declared before the tag loads. Advertising storage
+# is denied everywhere, because this site runs no ads and has no use for it. In
+# the EEA and the UK analytics storage is denied too, so visitors there are
+# measured without cookies unless and until a consent banner grants it. The UAE
+# audience, which is who this site is for, is measured normally.
+GA_SNIPPET = """<script>(function(){
+if(location.hostname!=="%(host)s")return;
+window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}window.gtag=gtag;
+gtag("consent","default",{ad_storage:"denied",ad_user_data:"denied",ad_personalization:"denied",analytics_storage:"granted"});
+gtag("consent","default",{region:["AT","BE","BG","HR","CY","CZ","DK","EE","FI","FR","DE","GR","HU","IE","IT","LV","LT","LU","MT","NL","PL","PT","RO","SK","SI","ES","SE","IS","LI","NO","GB","CH"],ad_storage:"denied",ad_user_data:"denied",ad_personalization:"denied",analytics_storage:"denied"});
+var s=document.createElement("script");s.async=true;s.src="https://www.googletagmanager.com/gtag/js?id=%(id)s";document.head.appendChild(s);
+gtag("js",new Date());gtag("config","%(id)s");
+})();</script>"""
+
+
+def analytics():
+    """The measurement tag, or nothing at all if no property is configured."""
+    gid = SITE.get("ga4_id")
+    if not gid:
+        return ""
+    return GA_SNIPPET % {"id": gid, "host": SITE["domain"].replace("https://", "")}
+
+
 def head(*, title, meta, url, image=None, jsonld=None, robots=None, prototype=False):
     canonical = SITE["domain"] + url
     og_img = image or og_url("hero/hero-pool-dusk")
@@ -177,6 +205,7 @@ def head(*, title, meta, url, image=None, jsonld=None, robots=None, prototype=Fa
 <link rel="stylesheet" href="/assets/css/site.css">
 <script>(function(){{var r=document.documentElement;r.className+=" js";try{{var t=localStorage.getItem("hst-theme")||(matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light");r.setAttribute("data-theme",t);}}catch(e){{}}}})();</script>
 {blocks}
+{analytics()}
 </head>
 <body>
 <a class="skip-link" href="#main">Skip to content</a>'''
