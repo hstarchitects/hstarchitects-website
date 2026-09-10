@@ -250,7 +250,10 @@
         service: (form.elements.service && form.elements.service.value) || null,
         budget: (form.elements.budget && form.elements.budget.value) || null,
         message: form.elements.message.value.trim(),
-        source_page: window.location.pathname
+        source_page: window.location.pathname,
+        // passed through so the endpoint can enforce the trap too, for anything
+        // that posts to it directly rather than through this form
+        company: (form.elements.company && form.elements.company.value) || ""
       };   // created_at is set by the database, not the client
 
       submit.disabled = true;
@@ -275,23 +278,55 @@
       });
     });
 
+    // The endpoint stores the enquiry AND emails the studio, so it is the path
+    // that actually reaches a human. If it is unreachable we still write to the
+    // database directly, which is what the site did before it existed: the
+    // enquiry is captured either way, it just may wait for someone to look.
     function send(payload) {
+      return fetch("/api/enquiry", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      }).then(function (r) {
+        if (r.ok) return;
+        if (r.status >= 400 && r.status < 500) {
+          // our own validation talking; a second attempt would say the same
+          return r.json().catch(function () { return {}; }).then(function (b) {
+            var e = new Error(b.error || "HTTP " + r.status);
+            e.final = true;
+            throw e;
+          });
+        }
+        throw new Error("HTTP " + r.status);
+      }).catch(function (err) {
+        if (err && err.final) throw err;
+        console.warn("[hst] enquiry endpoint unavailable, writing direct", err);
+        return direct(payload);
+      });
+    }
+
+    function direct(payload) {
       var cfg = window.HST_CONFIG || {};
-      if (cfg.supabaseUrl && cfg.supabaseAnonKey) {
-        return fetch(cfg.supabaseUrl.replace(/\/$/, "") + "/rest/v1/enquiries", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "apikey": cfg.supabaseAnonKey,
-            "Authorization": "Bearer " + cfg.supabaseAnonKey,
-            "Prefer": "return=minimal"
-          },
-          body: JSON.stringify(payload)
-        }).then(function (r) {
-          if (!r.ok) return r.text().then(function (t) { throw new Error("HTTP " + r.status + " " + t); });
-        });
+      if (!cfg.supabaseUrl || !cfg.supabaseAnonKey) {
+        return Promise.reject(new Error("Backend not configured"));
       }
-      return Promise.reject(new Error("Backend not configured"));
+      return fetch(cfg.supabaseUrl.replace(/\/$/, "") + "/rest/v1/enquiries", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "apikey": cfg.supabaseAnonKey,
+          "Authorization": "Bearer " + cfg.supabaseAnonKey,
+          "Prefer": "return=minimal"
+        },
+        // the endpoint accepts the honeypot field, the table does not
+        body: JSON.stringify({
+          name: payload.name, email: payload.email, phone: payload.phone,
+          service: payload.service, budget: payload.budget,
+          message: payload.message, source_page: payload.source_page
+        })
+      }).then(function (r) {
+        if (!r.ok) return r.text().then(function (t) { throw new Error("HTTP " + r.status + " " + t); });
+      });
     }
   }
 
