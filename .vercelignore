@@ -4,3 +4,4 @@ supabase/
 source/
 .claude/
 *.md
+_*

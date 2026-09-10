@@ -17,3 +17,6 @@ node_modules/
 
 # client source documents
 source/*.pdf
+
+# scratch renders
+_*

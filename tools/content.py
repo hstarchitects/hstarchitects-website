@@ -187,7 +187,7 @@ SERVICES = [
              "a": "Yes. Our comprehensive range of services covers full design implementation by our own team, based on the "
                   "final designs and drawings, so execution follows the design rather than reinterpreting it."},
             {"q": "How long does a villa renovation take in Dubai?",
-             "a": "It depends entirely on scope, a single-room refresh and a full strip-out with structural alterations "
+             "a": "It depends entirely on scope. A single-room refresh and a full strip-out with structural alterations "
                   "are very different programmes. We issue a written programme after surveying the property rather than "
                   "quoting a generic timescale."},
             {"q": "Can you work in an occupied office or home?",
@@ -256,8 +256,8 @@ SERVICES = [
              "a": "Both. Our landscape work covers design through to construction, including hardscaping, planting, "
                   "shade structures, water features, irrigation and lighting."},
             {"q": "Can you landscape a roof terrace or balcony?",
-             "a": "Yes. Roof terraces are some of our most requested work, the District One roof garden in our portfolio "
-                  "is one example. We check the building's constraints before designing around them."},
+             "a": "Yes. Roof terraces are some of our most requested work. The District One roof garden in our portfolio "
+                  "is one example, and we check the building's constraints before designing around them."},
             {"q": "Do you offer garden maintenance after handover?",
              "a": "Yes, through HST Group's annual maintenance contracts, which cover residential and commercial "
                   "properties on an annual or daily basis."},

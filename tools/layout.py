@@ -69,8 +69,13 @@ def icon(n): return ICONS[n]
 
 LOGO_W, LOGO_H = 7008, 4559          # trimmed artwork ratio, see tools/build_logo.py
 
-def brand_logo(cls="", height=48):
-    """The supplied brand mark, light and dark variants, swapped by theme."""
+def brand_logo(cls="", height=48, on_dark=False):
+    """The supplied brand mark.
+
+    Normally both variants are emitted and swapped by theme. `on_dark` pins it to
+    the light-ink artwork for surfaces that stay dark in every theme, such as the
+    footer band, where a theme swap would put dark ink on navy.
+    """
     w = round(height * LOGO_W / LOGO_H)
     def one(slug, extra):
         return (f'<picture>'
@@ -80,6 +85,9 @@ def brand_logo(cls="", height=48):
                 f'<img src="/assets/img/brand/{slug}.png" alt="{extra[0]}" width="{LOGO_W}" '
                 f'height="{LOGO_H}" class="{extra[1]}" style="height:{height}px;width:auto" '
                 f'decoding="async"{extra[2]}></picture>')
+    if on_dark:
+        return (f'<span class="brand__mark {cls}">'
+                + one("logo-light", (esc(SITE["name"]), "", "")) + "</span>")
     return (f'<span class="brand__mark {cls}">'
             + one("logo", (esc(SITE["name"]), "logo-light", ""))
             + one("logo-light", ("", "logo-dark", " hidden"))
@@ -241,7 +249,7 @@ def footer():
   <div class="wrap">
     <div class="footer__grid">
       <div class="footer__brand">
-        {brand_logo(cls="brand__mark--footer", height=104)}
+        {brand_logo(cls="brand__mark--footer", height=104, on_dark=True)}
         <p>{esc(SITE['short_desc'])}</p>
         <div class="footer__social" style="margin-top:1.5rem">
           <a href="{SITE['socials']['instagram']}" rel="noopener noreferrer nofollow" target="_blank" aria-label="HST Architects on Instagram">{icon("instagram")}</a>

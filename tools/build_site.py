@@ -451,7 +451,7 @@ def build_projects_index():
   <div class="card__inner">
     <div class="card__media">{img(p["img"], p["alt"], sizes="(max-width:620px) 92vw, (max-width:900px) 46vw, 31vw")}</div>
     <div class="card__body">
-      <div class="card__meta"><span>{esc(p["cat"])}</span><span>{esc(p["loc"])}</span></div>
+      <div class="card__meta"><span>{esc(p["cat"])}</span></div>
       <h2 class="h3"><a class="card__link" href="/projects/{p["slug"]}/">{esc(p["title"])}</a></h2>
       <p class="small muted card__blurb">{esc(p["blurb"])}</p>
       <div class="card__foot"><span class="small muted">{esc(p["loc"])}</span></div>
@@ -612,7 +612,7 @@ def build_project(p, prev_p, next_p):
 </section>
 
 {"" if not gal else f'''<section class="section" aria-labelledby="pg-h">
-  <div class="wrap wrap-wide">
+  <div class="wrap">
     <div class="sec-head reveal"><div class="sec-head__text">
       <span class="eyebrow">Gallery</span>
       <h2 class="h2 split-head" id="pg-h">Inside <span class="lite">{esc(p["title"])}</span></h2>
@@ -813,8 +813,8 @@ def build_contact():
         <span class="eyebrow">Get in touch</span>
         <h1 class="h1 split-head">Tell us about <span class="lite">the space</span></h1>
       </div>
-      <p class="lede">The more you can tell us up front, property type, size, timeline, rough budget, the more useful our
-        first reply will be.</p>
+      <p class="lede">Tell us the property type, size, timeline and rough budget up front. The more we know, the
+        more useful our first reply will be.</p>
     </div>
   </div>
 </section>

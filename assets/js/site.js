@@ -120,11 +120,16 @@
       if (!thumb || !btn) return;
       var br = filterBar.getBoundingClientRect();
       var r = btn.getBoundingClientRect();
+      // getBoundingClientRect includes the capsule's own border, but the thumb is
+      // positioned inside the padding box, so subtract it or every stop is off by 1px
+      var bcs = getComputedStyle(filterBar);
+      var bl = parseFloat(bcs.borderLeftWidth) || 0;
+      var bt = parseFloat(bcs.borderTopWidth) || 0;
       if (!animate) thumb.style.transition = "none";
       thumb.style.width = r.width + "px";
       thumb.style.height = r.height + "px";
-      thumb.style.transform = "translate(" + (r.left - br.left) + "px," +
-                              (r.top - br.top - parseFloat(getComputedStyle(thumb).top || 0)) + "px)";
+      thumb.style.transform = "translate(" + (r.left - br.left - bl) + "px," +
+                              (r.top - br.top - bt - (parseFloat(getComputedStyle(thumb).top) || 0)) + "px)";
       thumb.style.opacity = "1";
       if (!animate) {
         // force a reflow so the suppressed transition does not leak into the next move
