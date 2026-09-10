@@ -1,4 +1,4 @@
-# robots.txt — https://hstarchitects.com
+# robots.txt, https://hstarchitects.com
 User-agent: *
 Allow: /
 Disallow: /_

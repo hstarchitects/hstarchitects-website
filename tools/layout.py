@@ -14,7 +14,7 @@ def img(key, alt, sizes="100vw", cls="", loading="lazy", priority=False, style="
     """Responsive <picture> from the generated manifest."""
     m = MANIFEST.get(key)
     if not m:
-        raise KeyError(f"image '{key}' is not in the manifest — add it to tools/build_images.py")
+        raise KeyError(f"image '{key}' is not in the manifest, add it to tools/build_images.py")
     widths = m["widths"]
     webp = ", ".join(f"/assets/img/{key}-{w['label']}.webp {w['real']}w" for w in widths)
     attrs = [
@@ -32,7 +32,7 @@ def img(key, alt, sizes="100vw", cls="", loading="lazy", priority=False, style="
             f'<img {" ".join(attrs)}></picture>')
 
 def og_url(key):
-    """Social-card image. Always JPEG — LinkedIn and WhatsApp do not decode WebP."""
+    """Social-card image. Always JPEG, LinkedIn and WhatsApp do not decode WebP."""
     if key not in MANIFEST:
         raise KeyError(key)
     return f'{SITE["domain"]}/assets/img/{key}.jpg'
@@ -66,6 +66,25 @@ ICONS = {
   "leaf": '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20c0-8 5.4-14 16-15 .5 7.6-4.2 15-12 15H4Z"/><path d="M4 20c3-4.5 6.6-7.4 11-9.4"/></svg>',
 }
 def icon(n): return ICONS[n]
+
+LOGO_W, LOGO_H = 7008, 4559          # trimmed artwork ratio, see tools/build_logo.py
+
+def brand_logo(cls="", height=48):
+    """The supplied brand mark, light and dark variants, swapped by theme."""
+    w = round(height * LOGO_W / LOGO_H)
+    def one(slug, extra):
+        return (f'<picture>'
+                f'<source type="image/webp" srcset="/assets/img/brand/{slug}-320.webp 320w,'
+                f'/assets/img/brand/{slug}-640.webp 640w,/assets/img/brand/{slug}-1200.webp 1200w" '
+                f'sizes="{w}px">'
+                f'<img src="/assets/img/brand/{slug}.png" alt="{extra[0]}" width="{LOGO_W}" '
+                f'height="{LOGO_H}" class="{extra[1]}" style="height:{height}px;width:auto" '
+                f'decoding="async"{extra[2]}></picture>')
+    return (f'<span class="brand__mark {cls}">'
+            + one("logo", (esc(SITE["name"]), "logo-light", ""))
+            + one("logo-light", ("", "logo-dark", " hidden"))
+            + "</span>")
+
 
 def arrow_badge(cls="arrow-badge"):
     return f'<span class="{cls}" aria-hidden="true">{icon("arrow")}</span>'
@@ -113,13 +132,13 @@ def head(*, title, meta, url, image=None, jsonld=None, robots=None, prototype=Fa
 <meta property="og:url" content="{canonical}">
 <meta property="og:image" content="{og_img}">
 <meta property="og:image:type" content="image/jpeg">
-<meta property="og:image:alt" content="{esc(SITE['name'])} — {esc(SITE['tagline'])}">
+<meta property="og:image:alt" content="{esc(SITE['name'])}, {esc(SITE['tagline'])}">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="{esc(title)}">
 <meta name="twitter:description" content="{esc(meta)}">
 <meta name="twitter:image" content="{og_img}">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
-<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
 <link rel="manifest" href="/site.webmanifest">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -150,9 +169,8 @@ def header(active):
 <header class="header">
   <div class="wrap wrap-wide">
     <div class="header__bar">
-      <a class="brand" href="/" aria-label="{esc(SITE['name'])} — home">
-        <img src="/assets/img/brand/logo.svg" alt="{esc(SITE['name'])}" width="236" height="134" class="logo-light">
-        <img src="/assets/img/brand/logo-light.svg" alt="" width="236" height="134" class="logo-dark" hidden>
+      <a class="brand" href="/" aria-label="{esc(SITE['name'])}, home">
+        {brand_logo(height=46)}
       </a>
       <nav class="nav" aria-label="Primary"><ul style="display:flex;align-items:center;gap:.15rem">{"".join(links)}</ul></nav>
       <div class="header__actions">
@@ -174,9 +192,8 @@ def drawer(active):
     return f'''
 <div class="drawer" id="drawer" aria-hidden="true" role="dialog" aria-modal="true" aria-label="Menu">
   <div class="drawer__top">
-    <a class="brand" href="/" aria-label="{esc(SITE['name'])} — home">
-      <img src="/assets/img/brand/logo.svg" alt="{esc(SITE['name'])}" width="236" height="134" class="logo-light">
-      <img src="/assets/img/brand/logo-light.svg" alt="" width="236" height="134" class="logo-dark" hidden>
+    <a class="brand" href="/" aria-label="{esc(SITE['name'])}, home">
+      {brand_logo(height=44)}
     </a>
     <div style="display:flex;gap:.45rem">
       <button class="icon-btn theme-toggle" data-theme-toggle type="button" aria-label="Switch theme">{icon("sun")}{icon("moon")}</button>
@@ -191,15 +208,27 @@ def drawer(active):
 </div>'''
 
 # ---------------------------------------------------------------- footer
+def floating_actions():
+    wa = "https://wa.me/" + SITE["phone_link"].lstrip("+")
+    return f'''
+<button class="to-top" type="button" data-to-top aria-label="Back to top" hidden>
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
+</button>
+<a class="wa-fab" href="{wa}" target="_blank" rel="noopener noreferrer nofollow"
+   aria-label="Message HST Architects on WhatsApp">
+  {icon("whatsapp")}<span class="wa-fab__label">WhatsApp</span>
+</a>'''
+
+
 def footer():
     svc_links = "".join(f'<a href="{s["url"]}">{esc(s["title"])}</a>' for s in SERVICES)
     area_links = ", ".join(esc(a) for a in SITE["areas"][:10])
-    return f'''
+    return floating_actions() + f'''
 <footer class="footer">
   <div class="wrap">
     <div class="footer__grid">
       <div class="footer__brand">
-        <img src="/assets/img/brand/logo-light.svg" alt="{esc(SITE['name'])}" width="236" height="134">
+        {brand_logo(cls="brand__mark--footer", height=104)}
         <p>{esc(SITE['short_desc'])}</p>
         <div class="footer__social" style="margin-top:1.5rem">
           <a href="{SITE['socials']['instagram']}" rel="noopener noreferrer nofollow" target="_blank" aria-label="HST Architects on Instagram">{icon("instagram")}</a>
@@ -255,7 +284,7 @@ def tail(config_js=True):
 
 # ---------------------------------------------------------------- shared partials
 def breadcrumbs(trail):
-    """trail = [(label, url|None)] — last item is the current page."""
+    """trail = [(label, url|None)], last item is the current page."""
     out = []
     for i, (label, url) in enumerate(trail):
         if url and i < len(trail) - 1:

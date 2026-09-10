@@ -1,5 +1,5 @@
 /* ============================================================================
-   HST Architects — site behaviour
+   HST Architects, site behaviour
    Theme, navigation, reveal, accordion, project filters, contact form.
    ========================================================================= */
 (function () {
@@ -113,6 +113,26 @@
   /* ---------- project filters -------------------------------------------- */
   var filterBar = doc.querySelector("[data-filters]");
   if (filterBar) {
+    var thumb = filterBar.querySelector(".filters__thumb");
+
+    // move the glass indicator under whichever segment is active
+    function moveThumb(btn, animate) {
+      if (!thumb || !btn) return;
+      var br = filterBar.getBoundingClientRect();
+      var r = btn.getBoundingClientRect();
+      if (!animate) thumb.style.transition = "none";
+      thumb.style.width = r.width + "px";
+      thumb.style.height = r.height + "px";
+      thumb.style.transform = "translate(" + (r.left - br.left) + "px," +
+                              (r.top - br.top - parseFloat(getComputedStyle(thumb).top || 0)) + "px)";
+      thumb.style.opacity = "1";
+      if (!animate) {
+        // force a reflow so the suppressed transition does not leak into the next move
+        void thumb.offsetWidth;
+        thumb.style.transition = "";
+      }
+    }
+
     filterBar.addEventListener("click", function (e) {
       var b = e.target.closest(".filter");
       if (!b) return;
@@ -121,6 +141,7 @@
         f.classList.toggle("is-active", f === b);
         f.setAttribute("aria-pressed", String(f === b));
       });
+      moveThumb(b, true);
       doc.querySelectorAll("[data-cat]").forEach(function (card) {
         var show = val === "all" || card.dataset.cat === val;
         card.style.display = show ? "" : "none";
@@ -134,6 +155,26 @@
       var target = filterBar.querySelector('.filter[data-filter="' + CSS.escape(pre) + '"]');
       if (target) target.click();
     }
+
+    // place the indicator once fonts have settled, and keep it in step on resize
+    var settle = function () { moveThumb(filterBar.querySelector(".filter.is-active"), false); };
+    settle();
+    if (doc.fonts && doc.fonts.ready) doc.fonts.ready.then(settle);
+    window.addEventListener("resize", settle);
+  }
+
+  /* ---------- back to top -------------------------------------------------- */
+  var toTop = doc.querySelector("[data-to-top]");
+  if (toTop) {
+    toTop.hidden = false;
+    var onScroll = function () {
+      toTop.classList.toggle("is-in", window.scrollY > window.innerHeight * 0.6);
+    };
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    toTop.addEventListener("click", function () {
+      window.scrollTo({ top: 0, behavior: reduced ? "auto" : "smooth" });
+    });
   }
 
   /* ---------- horizontal rail buttons ------------------------------------ */

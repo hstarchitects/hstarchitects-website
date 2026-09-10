@@ -119,8 +119,8 @@ def build_home():
             <h1 class="display">{esc(seo["h1"].split(" to ")[0])} <span class="lite">to outlast the trend</span></h1>
           </div>
           <div>
-            <p class="hero__sub">We design and build <strong>villas, offices, showrooms and gardens</strong> across Dubai —
-              one team from the first sketch to the final snag, so nothing is lost in translation between designer and site.</p>
+            <p class="hero__sub">We design and build <strong>villas, offices, showrooms and gardens</strong> across Dubai. One team
+              from the first sketch to the final snag, so nothing is lost in translation between designer and site.</p>
             <div class="hero__cta">
               {btn("Book a site visit", "/contact/", "light")}
               {btn("View our projects", "/projects/", "outline")}
@@ -165,8 +165,8 @@ def build_home():
           <span class="lite">and outdoor spaces</span><span class="inline-pill">{img("services/landscape-villa-pool", "", sizes="124px")}</span>
           engineered <span class="lite">to last.</span></h2>
         <p class="lede" style="margin-top:1.4rem">HST Architects is the design arm of {esc(SITE["legal"])}, a licensed UAE building
-          maintenance and technical services company. That licence is the reason we can draw a project and then actually build it —
-          MEP, joinery, finishes and approvals included.</p>
+          maintenance and technical services company. That licence is the reason we can draw a project and then actually build it,
+          with joinery, finishes and technical works included.</p>
         <div class="grid g-2" style="margin-top:2rem;gap:1rem">{why}</div>
         <div style="margin-top:2rem">{btn("More about the studio", "/about/", "ghost")}</div>
       </div>
@@ -212,7 +212,7 @@ def build_home():
       <div class="sec-head__text">
         <span class="eyebrow">Sectors</span>
         <h2 class="h2 split-head" id="sect-h">The kinds of space <span class="lite">we work on</span></h2>
-        <p class="lede">Residential, workplace, retail, hospitality, fitness and landscape — every one of these is represented in the portfolio.</p>
+        <p class="lede">Residential, workplace, retail, hospitality, fitness and landscape, every one of these is represented in the portfolio.</p>
       </div>
       {btn("See the portfolio", "/projects/", "ghost")}
     </div>
@@ -255,7 +255,7 @@ def build_services_index():
     <div class="split{rev} reveal">
       <div class="split__media">{img(s["hero_img"], s["hero_alt"], sizes="(max-width:900px) 92vw, 46vw")}</div>
       <div class="split__body">
-        <span class="eyebrow">{esc(s["num"])} &mdash; {esc(s["title"])}</span>
+        <span class="eyebrow">{esc(s["num"])} &middot; {esc(s["title"])}</span>
         <h2 class="h2 split-head" id="s-{s["key"]}">{esc(s["lede"])}</h2>
         <p class="lede" style="margin-top:1.2rem">{esc(s["intro"])}</p>
         <div class="grid g-2" style="margin-top:2rem;gap:1.3rem 1.6rem">{caps}</div>
@@ -379,20 +379,22 @@ def build_service(s):
 
 <section class="section" aria-labelledby="cap-h">
   <div class="wrap">
-    <div class="sec-head reveal">
+    <div class="sec-head sec-head--split reveal">
       <div class="sec-head__text">
         <span class="eyebrow">What is included</span>
         <h2 class="h2 split-head" id="cap-h">{esc(s["lede"])}</h2>
-        <ul class="prose" style="margin-top:1.3rem;max-width:52ch">{outcomes}</ul>
       </div>
-      <p class="small muted" style="max-width:26ch;text-align:right">{esc(s["process_note"])}</p>
+      <div class="sec-head__aside">
+        <ul class="tick-list">{outcomes}</ul>
+        <p class="small muted" style="margin-top:1.2rem">{esc(s["process_note"])}</p>
+      </div>
     </div>
     <div class="grid g-3">{caps}</div>
   </div>
 </section>
 
 <section class="section" aria-labelledby="gal-h">
-  <div class="wrap wrap-wide">
+  <div class="wrap">
     <div class="sec-head reveal">
       <div class="sec-head__text">
         <span class="eyebrow">Delivered work</span>
@@ -416,7 +418,7 @@ def build_service(s):
   </div>
 </section>'''}
 
-{faq_block(s["faqs"], f'{s["title"]} in Dubai — common questions')}
+{faq_block(s["faqs"], f'{s["title"]} in Dubai, common questions')}
 
 {cta_band("Ready to start?", "Book the site visit.",
           "Tell us the property, the timeline and roughly what you want to spend. We will come and look, then send a written scope and a fixed fee.")}
@@ -438,21 +440,21 @@ def build_projects_index():
     trail = [("Home", "/"), ("Projects", "/projects/")]
     cats = sorted({p["cat"] for p in PROJECTS})
 
-    filters = '<button class="filter is-active" data-filter="all" aria-pressed="true" type="button">All work</button>'
+    filters = '<span class="filters__thumb" aria-hidden="true"></span>'
+    filters += '<button class="filter is-active" data-filter="all" aria-pressed="true" type="button">All work</button>'
     filters += "".join(f'<button class="filter" data-filter="{esc(c)}" aria-pressed="false" type="button">{esc(c)}</button>' for c in cats)
 
     cards = "".join(f'''<article class="card reveal" data-cat="{esc(p["cat"])}">
-  <a href="/projects/{p["slug"]}/" style="display:block">
+  <div class="card__inner">
     <div class="card__media">{img(p["img"], p["alt"], sizes="(max-width:620px) 92vw, (max-width:900px) 46vw, 31vw")}</div>
     <div class="card__body">
       <div class="card__meta"><span>{esc(p["cat"])}</span><span>{esc(p["loc"])}</span></div>
-      <h2 class="h3" style="margin-top:.6rem">{esc(p["title"])}</h2>
-      <p class="small muted">{esc(p["blurb"])}</p>
-      <div style="margin-top:1.1rem;display:flex;justify-content:space-between;align-items:center">
-        <span class="small muted">{esc(p["loc"])}</span>{arrow_badge()}
-      </div>
+      <h2 class="h3"><a class="card__link" href="/projects/{p["slug"]}/">{esc(p["title"])}</a></h2>
+      <p class="small muted card__blurb">{esc(p["blurb"])}</p>
+      <div class="card__foot"><span class="small muted">{esc(p["loc"])}</span></div>
     </div>
-  </a>
+  </div>
+  {arrow_badge("card__go")}
 </article>''' for p in PROJECTS)
 
     ld = [org_ld(), breadcrumb_ld(trail),
@@ -483,7 +485,7 @@ def build_projects_index():
 
 <section class="section-sm">
   <div class="wrap">
-    <div class="filters" data-filters role="group" aria-label="Filter projects by type">{filters}</div>
+    <div class="filters-bar"><div class="filters" data-filters role="group" aria-label="Filter projects by type">{filters}</div></div>
     <div class="grid g-3">{cards}</div>
   </div>
 </section>
@@ -529,7 +531,7 @@ def build_project(p, prev_p, next_p):
         # walk forward from this project so every case study gets linked from somewhere
         rotated = PROJECTS[idx + 1:] + PROJECTS[:idx]
         others += [o for o in rotated if o["slug"] != p["slug"] and o not in others][:3 - len(others)]
-    more = "".join(f'''<a class="tile" href="/projects/{o["slug"]}/">
+    more = "".join(f'''<a class="tile tile--fade" href="/projects/{o["slug"]}/">
   {img(o["img"], o["alt"], sizes="(max-width:620px) 92vw, 31vw")}
   <div class="tile__label"><div><h3>{esc(o["title"])}</h3><p>{esc(o["cat"])} &middot; {esc(o["loc"])}</p></div>{arrow_badge()}</div></a>'''
   for o in others)
@@ -570,19 +572,16 @@ def build_project(p, prev_p, next_p):
 
 <section class="section-sm">
   <div class="wrap wrap-wide">
-    <div class="reveal" style="border-radius:var(--r-xl);overflow:hidden">
-      {img(p["img"], p["alt"], sizes="100vw", priority=True, style="aspect-ratio:16/8;object-fit:cover;width:100%")}
-    </div>
-  </div>
-</section>
-
-<section class="section-sm">
-  <div class="wrap">
-    <div class="spec reveal">
+    <div class="hero-figure reveal">
+      <div class="hero-figure__media">
+        {img(p["img"], p["alt"], sizes="100vw", priority=True, style="aspect-ratio:16/8;object-fit:cover;width:100%")}
+      </div>
+      <div class="spec spec--float glass">
       <div class="spec__i"><b>Location</b><span>{esc(p["loc"])}</span></div>
       {year_row}
       <div class="spec__i"><b>Sector</b><span>{esc(p["cat"])}</span></div>
       <div class="spec__i"><b>Discipline</b><span><a href="{s["url"]}" style="color:inherit;border-bottom:1px solid var(--line-strong)">{esc(s["title"])}</a></span></div>
+      </div>
     </div>
   </div>
 </section>
@@ -764,7 +763,7 @@ def build_about():
   <div class="wrap wrap-narrow" style="text-align:center">
     <span class="eyebrow" style="justify-content:center">Our standard</span>
     <blockquote class="quote reveal" style="margin:0">&ldquo;Architecture is the thoughtful making of space, light, and form.&rdquo;</blockquote>
-    <p class="small muted" style="margin-top:1.2rem;letter-spacing:.14em;text-transform:uppercase">— HST Architects</p>
+    <p class="small muted" style="margin-top:1.2rem;letter-spacing:.14em;text-transform:uppercase">HST Architects</p>
   </div>
 </section>
 
@@ -808,7 +807,7 @@ def build_contact():
         <span class="eyebrow">Get in touch</span>
         <h1 class="h1 split-head">Tell us about <span class="lite">the space</span></h1>
       </div>
-      <p class="lede">The more you can tell us up front — property type, size, timeline, rough budget — the more useful our
+      <p class="lede">The more you can tell us up front, property type, size, timeline, rough budget, the more useful our
         first reply will be.</p>
     </div>
   </div>
@@ -855,8 +854,8 @@ def build_contact():
             <select id="f-budget" name="budget">
               <option value="">Prefer not to say</option>
               <option value="Under AED 250k">Under AED 250,000</option>
-              <option value="AED 250k - 750k">AED 250,000 &ndash; 750,000</option>
-              <option value="AED 750k - 2m">AED 750,000 &ndash; 2 million</option>
+              <option value="AED 250k to 750k">AED 250,000 to 750,000</option>
+              <option value="AED 750k to 2m">AED 750,000 to 2 million</option>
               <option value="Over AED 2m">Over AED 2 million</option>
             </select>
           </div>
@@ -898,7 +897,7 @@ def build_contact():
           </div>
           <div class="contact-item">
             <span class="contact-item__ic">{icon("clock")}</span>
-            <div><b>Opening hours</b><span>Saturday &ndash; Thursday, 9:00 &ndash; 18:00</span></div>
+            <div><b>Opening hours</b><span>Saturday to Thursday, 9:00 to 18:00</span></div>
           </div>
           <div style="margin-top:1.4rem;display:flex;gap:.6rem;flex-wrap:wrap">
             {btn("WhatsApp us", "https://wa.me/" + SITE["phone_link"].lstrip("+"), "accent",
@@ -962,7 +961,7 @@ def build_404():
 # Static assets
 # ===========================================================================
 def build_static():
-    # favicon — a compact HST monogram that stays legible at 16px
+    # favicon, a compact HST monogram that stays legible at 16px
     favicon = '''<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
 <rect width="64" height="64" rx="13" fill="#182331"/>
 <path d="M13 19h6.4v10.1h9.2V19H35v26h-6.4V34.6h-9.2V45H13V19Z" fill="#F7F3EA"/>
@@ -998,7 +997,7 @@ def build_static():
     }
     write("site.webmanifest", json.dumps(manifest, indent=2, ensure_ascii=False))
 
-    robots = f"""# robots.txt — {SITE['domain']}
+    robots = f"""# robots.txt, {SITE['domain']}
 User-agent: *
 Allow: /
 Disallow: /_
@@ -1031,7 +1030,7 @@ Host: {SITE['domain'].replace('https://', '')}
 """
     write("robots.txt", robots)
 
-    # llms.txt — a plain-text map for answer engines
+    # llms.txt, a plain-text map for answer engines
     svc_lines = "\n".join(f'- [{s["title"]}]({SITE["domain"]}{s["url"]}): {s["short"]}' for s in SERVICES)
     proj_lines = "\n".join(
         f'- [{p["title"]}]({SITE["domain"]}/projects/{p["slug"]}/): {p["cat"]}, {p["loc"]}, {p["year"]}.'

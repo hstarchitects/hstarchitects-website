@@ -35,11 +35,11 @@ SITE = {
     "address_country": "AE",
     # Boulevard Plaza Tower 1, Downtown Dubai
     "geo": {"lat": "25.1959", "lng": "55.2745"},
-    # schema.org day tokens — a plain "Sa-Th" string is not parseable
+    # schema.org day tokens, a plain "Sa-Th" string is not parseable
     "hours_days": ["Saturday", "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday"],
     "hours_open": "09:00",
     "hours_close": "18:00",
-    "hours_display": "Saturday to Thursday, 9am – 6pm",
+    "hours_display": "Saturday to Thursday, 9am, 6pm",
     # every emirate/community named in the two source portfolios
     "areas": [
         "Dubai", "Downtown Dubai", "Business Bay", "Dubai Marina", "Emirates Hills",
@@ -47,7 +47,7 @@ SITE = {
         "Abu Dhabi",
     ],
     "socials": {
-        "instagram": "https://www.instagram.com/hst.technical",   # source: HST profile p28
+        "instagram": "https://www.instagram.com/hst.arch",
     },
 }
 
@@ -69,9 +69,9 @@ NAV = [
 # --------------------------------------------------------------------------
 # Services
 #   Capabilities below are drawn from the two source service lists:
-#   HST      — interior fit out, landscape, conceptual designing, annual
+#   HST     , interior fit out, landscape, conceptual designing, annual
 #              maintenance contracts, technical services, furniture, designing
-#   Profile 2 — design consultation, concept development & visualisation, space
+#   Profile 2, design consultation, concept development & visualisation, space
 #              planning, material selection & procurement, renovation &
 #              construction management, custom furniture & millwork
 # --------------------------------------------------------------------------
@@ -94,7 +94,7 @@ SERVICES = [
         "intro": (
             "We start with how a space will actually be lived in or worked in, then work "
             "backwards through light, circulation, material and detail until the drawings are "
-            "precise enough to build from — by the same team that will build them."
+            "precise enough to build from, by the same team that will build them."
         ),
         "lede": "Design detailed enough to build from.",
         "outcomes": [
@@ -187,7 +187,7 @@ SERVICES = [
              "a": "Yes. Our comprehensive range of services covers full design implementation by our own team, based on the "
                   "final designs and drawings, so execution follows the design rather than reinterpreting it."},
             {"q": "How long does a villa renovation take in Dubai?",
-             "a": "It depends entirely on scope — a single-room refresh and a full strip-out with structural alterations "
+             "a": "It depends entirely on scope, a single-room refresh and a full strip-out with structural alterations "
                   "are very different programmes. We issue a written programme after surveying the property rather than "
                   "quoting a generic timescale."},
             {"q": "Can you work in an occupied office or home?",
@@ -256,7 +256,7 @@ SERVICES = [
              "a": "Both. Our landscape work covers design through to construction, including hardscaping, planting, "
                   "shade structures, water features, irrigation and lighting."},
             {"q": "Can you landscape a roof terrace or balcony?",
-             "a": "Yes. Roof terraces are some of our most requested work — the District One roof garden in our portfolio "
+             "a": "Yes. Roof terraces are some of our most requested work, the District One roof garden in our portfolio "
                   "is one example. We check the building's constraints before designing around them."},
             {"q": "Do you offer garden maintenance after handover?",
              "a": "Yes, through HST Group's annual maintenance contracts, which cover residential and commercial "
@@ -276,8 +276,8 @@ SERVICES = [
 # --------------------------------------------------------------------------
 # Projects
 #
-#   year  — only where the source profile states one; "" otherwise.
-#   area  — the sources give no floor areas, so this field is intentionally absent.
+#   year , only where the source profile states one; "" otherwise.
+#   area , the sources give no floor areas, so this field is intentionally absent.
 #   Every gallery image belongs to the project it sits under.
 # --------------------------------------------------------------------------
 PROJECTS = [
@@ -427,7 +427,7 @@ PROJECTS = [
 ]
 
 # --------------------------------------------------------------------------
-# 3D visualisation — shown as renders, never as delivered projects
+# 3D visualisation, shown as renders, never as delivered projects
 # --------------------------------------------------------------------------
 VISUALS = [
     ("renders/render-lounge", "3D visualisation of a lounge with a curved red sofa and integrated media wall"),
@@ -439,7 +439,7 @@ VISUALS = [
 ]
 
 # --------------------------------------------------------------------------
-# Portfolio facts — each is countable from PROJECTS above, not asserted
+# Portfolio facts, each is countable from PROJECTS above, not asserted
 # --------------------------------------------------------------------------
 PROCESS = [
     {"n": "01", "t": "Consultation & Site Survey",
@@ -460,7 +460,7 @@ WHY_US = [
     {"t": "A licensed technical services company",
      "d": "HST Architects sits inside HST Group, a licensed UAE building maintenance and technical services company."},
     {"t": "Residential and commercial",
-     "d": "Villas, apartments, offices, showrooms, restaurants and gardens — across Dubai and Abu Dhabi."},
+     "d": "Villas, apartments, offices, showrooms, restaurants and gardens, across Dubai and Abu Dhabi."},
     {"t": "Specified for this climate",
      "d": "Materials and planting chosen against Gulf heat, humidity and salinity rather than a European catalogue."},
 ]
@@ -476,8 +476,8 @@ SECTORS = [
 
 HOME_FAQS = [
     {"q": "What areas of the UAE does HST Architects cover?",
-     "a": "We work across Dubai — including Downtown, Business Bay, Emirates Hills, Dubai Marina, Jumeirah, Al Barsha, "
-          "Damac Hills and District One — and take projects in Abu Dhabi."},
+     "a": "We work across Dubai, including Downtown, Business Bay, Emirates Hills, Dubai Marina, Jumeirah, Al Barsha, "
+          "Damac Hills and District One, and take projects in Abu Dhabi."},
     {"q": "Do you handle both the design and the construction?",
      "a": "Yes. HST is a design-and-build practice: our services include full design implementation by our own team, "
           "based on the final designs and drawings. We can also build to another consultant's drawings."},
