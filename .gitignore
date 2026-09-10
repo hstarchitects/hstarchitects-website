@@ -17,6 +17,7 @@ node_modules/
 
 # client source documents
 source/*.pdf
+source/blueprints/
 
 # scratch renders
 _*

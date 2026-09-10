@@ -140,7 +140,7 @@ def build_home():
 </section>
 
 <section class="section" aria-labelledby="svc-h">
-  {plan_deco("apartment", "head")}
+  {plan_deco("courtyard", "head")}
   <div class="wrap">
     <div class="sec-head reveal">
       <div class="sec-head__text">
@@ -195,7 +195,7 @@ def build_home():
 </section>
 
 <section class="section" aria-labelledby="proc-h">
-  {plan_deco("core", "right", size="min(34%, 430px)")}
+  {plan_deco("dual", "right", size="min(38%, 500px)")}
   <div class="wrap">
     <div class="sec-head reveal">
       <div class="sec-head__text">
@@ -380,7 +380,7 @@ def build_service(s):
 </section>
 
 <section class="section" aria-labelledby="cap-h">
-  {plan_deco("villa", "left", size="min(40%, 520px)")}
+  {plan_deco("corner", "left", size="min(48%, 640px)")}
   <div class="wrap">
     <div class="sec-head sec-head--split reveal">
       <div class="sec-head__text">
@@ -590,7 +590,7 @@ def build_project(p, prev_p, next_p):
 </section>
 
 <section class="section" aria-labelledby="scope-h">
-  {plan_deco("core", "left", size="min(30%, 380px)")}
+  {plan_deco("atrium", "right", size="min(40%, 540px)")}
   <div class="wrap">
     <div class="split reveal">
       <div class="split__body prose">
@@ -753,7 +753,7 @@ def build_about():
 </section>
 
 <section class="section" aria-labelledby="proc-h">
-  {plan_deco("core", "right", size="min(34%, 430px)")}
+  {plan_deco("dual", "right", size="min(38%, 500px)")}
   <div class="wrap">
     <div class="sec-head reveal"><div class="sec-head__text">
       <span class="eyebrow">Our process</span>
@@ -765,7 +765,7 @@ def build_about():
 </section>
 
 <section class="section">
-  {plan_deco("apartment", "center", size="min(86%, 1040px)")}
+  {plan_deco("curved", "center", size="min(46%, 560px)")}
   <div class="wrap wrap-narrow" style="text-align:center">
     <span class="eyebrow" style="justify-content:center">Our standard</span>
     <blockquote class="quote reveal" style="margin:0">&ldquo;Architecture is the thoughtful making of space, light, and form.&rdquo;</blockquote>
@@ -820,7 +820,7 @@ def build_contact():
 </section>
 
 <section class="section-sm">
-  {plan_deco("core", "left", size="min(26%, 340px)")}
+  {plan_deco("orthogonal", "left", size="min(40%, 500px)")}
   <div class="wrap">
     <div class="split" style="align-items:start;gap:clamp(1.6rem,4vw,3.5rem)">
 

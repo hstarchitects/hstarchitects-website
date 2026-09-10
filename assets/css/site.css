@@ -27,7 +27,7 @@
   --accent-soft:   rgba(156,79,58,.11);
   --line:          rgba(24,35,49,.14);
   /* plan-drawing texture: warm grey on the light theme */
-  --plan-op:       .40;
+  --plan-op:       .30;
   --line-strong:   #767E88;
 
   /* glass */
@@ -73,6 +73,8 @@
   --accent-soft:   rgba(224,147,123,.16);
   --line:          rgba(242,238,229,.12);
   --line-strong:   #79838F;
+  /* white ink on a dark ground reads brighter, so it needs less */
+  --plan-op:     .22;
 
   --glass-bg:       rgba(28,40,54,.58);
   --glass-bg-hover: rgba(28,40,54,.68);
@@ -966,28 +968,33 @@ html:not(.js) .filter.is-active { background: var(--ink); color: var(--bg); }
 
 
 /* ---------- 24. Plan-drawing texture ------------------------------------- */
-/* A general-arrangement drawing fills the dead space in a section. The ink
-   colour and the edge feather are baked into the SVG, one file per theme, so
-   the browser paints a plain background image. An earlier version tinted a
-   single stencil with a two-layer CSS mask; that composited on every frame and
-   made scrolling stutter. */
+/* Real architectural drawings supplied by the studio, one file per ink: graphite
+   on the light theme, white on the dark one. Because the ink is baked in there
+   is nothing to tint and nothing to composite, so the browser paints a plain
+   background image. The aspect ratio is set per drawing since they differ. */
 .plan-deco {
   position: absolute; z-index: 0; pointer-events: none;
   top: 50%; translate: 0 -50%;
-  width: var(--plan-size, min(56%, 760px));
-  aspect-ratio: 3 / 2;
+  width: var(--plan-size, min(52%, 720px));
+  aspect-ratio: var(--plan-ratio, 16 / 9);
   background: var(--plan-light) no-repeat center / contain;
   opacity: var(--plan-op);
 }
 [data-theme="dark"] .plan-deco { background-image: var(--plan-dark); }
-.plan-deco--right  { right: calc(var(--gutter) * -0.35); }
-.plan-deco--left   { left:  calc(var(--gutter) * -0.35); }
-.plan-deco--center { left: 50%; translate: -50% -50%; width: var(--plan-size, min(78%, 980px)); }
+/* The drawings run a little past the page edge on purpose. Clip them at the
+   section rather than letting the document grow sideways; `clip` is used instead
+   of `hidden` because `hidden` would turn the section into a scroll container and
+   break the sticky elements inside it. */
+.section:has(> .plan-deco),
+.section-sm:has(> .plan-deco) { overflow-x: clip; }
+.plan-deco--right  { right: calc(var(--gutter) * -0.4); }
+.plan-deco--left   { left:  calc(var(--gutter) * -0.4); }
+.plan-deco--center { left: 50%; translate: -50% -50%; width: var(--plan-size, min(74%, 940px)); }
 /* anchored beside a section heading, where the right column is genuinely empty */
 .plan-deco--head {
   top: var(--sec-y); translate: 0 0;
-  right: calc(var(--gutter) * -0.35);
-  width: var(--plan-size, min(42%, 560px));
+  right: calc(var(--gutter) * -0.4);
+  width: var(--plan-size, min(40%, 540px));
 }
 
 /* below the tablet breakpoint the columns collapse, so there is no dead space

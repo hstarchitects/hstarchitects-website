@@ -94,14 +94,23 @@ def brand_logo(cls="", height=48, on_dark=False):
             + "</span>")
 
 
-def plan_deco(variant="apartment", place="right", size="", cls=""):
+PLANS = json.load(open(os.path.join(ROOT, "assets", "img", "plans", "plans.json"), encoding="utf-8"))
+
+
+def plan_deco(variant="atrium", place="right", size="", cls=""):
     """Decorative architectural plan behind a section.
 
-    One SVG stencil per variant, tinted by the theme through a CSS mask, so the
-    same file is grey on the light theme and copper on the dark one.
+    The client supplied each drawing in two inks, graphite for the light theme and
+    white for the dark one, so the theme swap is a plain background-image swap
+    with nothing to composite. The aspect ratio comes from the manifest because
+    the drawings are not all the same shape.
     """
-    style = (f"--plan-light:url(/assets/img/plans/plan-{variant}-light.svg);"
-             f"--plan-dark:url(/assets/img/plans/plan-{variant}-dark.svg)")
+    m = PLANS.get(variant)
+    if not m:
+        raise KeyError(f"plan '{variant}' is not in plans.json; run tools/build_plans.py")
+    style = (f"--plan-light:url(/assets/img/plans/plan-{variant}-light.webp);"
+             f"--plan-dark:url(/assets/img/plans/plan-{variant}-dark.webp);"
+             f"--plan-ratio:{m['w']}/{m['h']}")
     if size:
         style += f";--plan-size:{size}"
     return f'<div class="plan-deco plan-deco--{place} {cls}" style="{style}" aria-hidden="true"></div>'
@@ -337,7 +346,7 @@ def faq_block(faqs, heading="Frequently asked questions", intro=None, level="h2"
 </div>''')
     lede = f'<p class="lede" style="margin-top:1rem">{esc(intro)}</p>' if intro else ""
     return f'''<section class="section" aria-labelledby="faq-h">
-  {plan_deco("villa", "right")}
+  {plan_deco("diagonal", "head", size="min(34%, 460px)")}
   <div class="wrap">
     <div class="sec-head reveal">
       <div class="sec-head__text">

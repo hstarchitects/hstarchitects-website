@@ -1,0 +1,51 @@
+{
+ "atrium": {
+  "coverage": 8.4,
+  "h": 619,
+  "ink_x": 0.32,
+  "sits": "left",
+  "w": 1100
+ },
+ "corner": {
+  "coverage": 5.5,
+  "h": 619,
+  "ink_x": 0.19,
+  "sits": "left",
+  "w": 1100
+ },
+ "courtyard": {
+  "coverage": 10.2,
+  "h": 985,
+  "ink_x": 0.6,
+  "sits": "right",
+  "w": 1100
+ },
+ "curved": {
+  "coverage": 7.1,
+  "h": 1134,
+  "ink_x": 0.43,
+  "sits": "centre",
+  "w": 1100
+ },
+ "diagonal": {
+  "coverage": 5.8,
+  "h": 619,
+  "ink_x": 0.52,
+  "sits": "centre",
+  "w": 1100
+ },
+ "dual": {
+  "coverage": 6.6,
+  "h": 619,
+  "ink_x": 0.59,
+  "sits": "right",
+  "w": 1100
+ },
+ "orthogonal": {
+  "coverage": 10.5,
+  "h": 700,
+  "ink_x": 0.44,
+  "sits": "centre",
+  "w": 1100
+ }
+}
