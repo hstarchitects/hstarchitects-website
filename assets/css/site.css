@@ -26,6 +26,8 @@
   --accent-ink:    #FFFFFF;
   --accent-soft:   rgba(156,79,58,.11);
   --line:          rgba(24,35,49,.14);
+  /* plan-drawing texture: warm grey on the light theme */
+  --plan-op:       .40;
   --line-strong:   #767E88;
 
   /* glass */
@@ -161,11 +163,11 @@ p { margin: 0; }
 .eyebrow.on-dark { color: rgba(255,255,255,.82); }
 
 /* ---------- 4. Layout ---------------------------------------------------- */
-.wrap { width: 100%; max-width: var(--maxw); margin-inline: auto; padding-inline: var(--gutter); }
+.wrap { width: 100%; max-width: var(--maxw); margin-inline: auto; padding-inline: var(--gutter); position: relative; z-index: 1; }
 .wrap-wide { max-width: 1560px; }
 .wrap-narrow { max-width: 860px; }
-.section { padding-block: var(--sec-y); }
-.section-sm { padding-block: clamp(2.2rem, 4vw, 3.6rem); }
+.section { padding-block: var(--sec-y); position: relative; }
+.section-sm { padding-block: clamp(2.2rem, 4vw, 3.6rem); position: relative; }
 .stack > * + * { margin-top: var(--gap, 1rem); }
 
 .grid { display: grid; gap: clamp(1rem, 2vw, 1.6rem); align-items: stretch; }
@@ -936,3 +938,34 @@ html:not(.js) .filter.is-active { background: var(--ink); color: var(--bg); }
   .to-top { width: 44px; height: 44px; }
 }
 @media print { .to-top, .wa-fab { display: none !important; } }
+
+
+/* ---------- 24. Plan-drawing texture ------------------------------------- */
+/* A general-arrangement drawing fills the dead space in a section. The ink
+   colour and the edge feather are baked into the SVG, one file per theme, so
+   the browser paints a plain background image. An earlier version tinted a
+   single stencil with a two-layer CSS mask; that composited on every frame and
+   made scrolling stutter. */
+.plan-deco {
+  position: absolute; z-index: 0; pointer-events: none;
+  top: 50%; translate: 0 -50%;
+  width: var(--plan-size, min(56%, 760px));
+  aspect-ratio: 3 / 2;
+  background: var(--plan-light) no-repeat center / contain;
+  opacity: var(--plan-op);
+}
+[data-theme="dark"] .plan-deco { background-image: var(--plan-dark); }
+.plan-deco--right  { right: calc(var(--gutter) * -0.35); }
+.plan-deco--left   { left:  calc(var(--gutter) * -0.35); }
+.plan-deco--center { left: 50%; translate: -50% -50%; width: var(--plan-size, min(78%, 980px)); }
+/* anchored beside a section heading, where the right column is genuinely empty */
+.plan-deco--head {
+  top: var(--sec-y); translate: 0 0;
+  right: calc(var(--gutter) * -0.35);
+  width: var(--plan-size, min(42%, 560px));
+}
+
+/* below the tablet breakpoint the columns collapse, so there is no dead space
+   left to fill and the drawing would sit under the copy */
+@media (max-width: 1080px) { .plan-deco { display: none; } }
+@media print { .plan-deco { display: none; } }
