@@ -1010,32 +1010,33 @@ Allow: /
 Disallow: /_
 Disallow: /*?filter=
 
-# Generative / answer engines are welcome to read and cite this site.
+# Generative / answer engines are welcome to read and cite this site. These share
+# one group: under RFC 9309 a crawler obeys only the most specific group that
+# matches it, so a named group listing nothing but Allow would have exempted
+# these agents from the two Disallow rules above.
 User-agent: GPTBot
-Allow: /
 User-agent: OAI-SearchBot
-Allow: /
 User-agent: ChatGPT-User
-Allow: /
 User-agent: ClaudeBot
-Allow: /
 User-agent: Claude-Web
-Allow: /
 User-agent: anthropic-ai
-Allow: /
 User-agent: PerplexityBot
-Allow: /
 User-agent: Google-Extended
-Allow: /
 User-agent: Applebot-Extended
-Allow: /
 User-agent: CCBot
 Allow: /
+Disallow: /_
+Disallow: /*?filter=
 
 Sitemap: {SITE['domain']}/sitemap.xml
 Host: {SITE['domain'].replace('https://', '')}
 """
     write("robots.txt", robots)
+
+    # IndexNow ownership proof. The file is the key and nothing else, at the host
+    # root, and it is what lets tools/indexnow.py push URLs to Bing, Yandex,
+    # Seznam and Naver without waiting for a crawl.
+    write(f"{SITE['indexnow_key']}.txt", SITE["indexnow_key"])
 
     # llms.txt, a plain-text map for answer engines
     svc_lines = "\n".join(f'- [{s["title"]}]({SITE["domain"]}{s["url"]}): {s["short"]}' for s in SERVICES)

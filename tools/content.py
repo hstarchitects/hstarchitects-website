@@ -50,6 +50,10 @@ SITE = {
         "Damac Hills", "District One", "Jumeirah", "Al Barsha", "Al Wasl", "Deira",
         "Abu Dhabi",
     ],
+    # IndexNow shared secret. Proof of ownership is the matching file served at
+    # /<key>.txt, so the key is deliberately public. Rotating it means changing
+    # this line and re-running the build; the old file simply stops being served.
+    "indexnow_key": "2a6aa7f485aea9c604eeba15aac358ee",
     # Search Console ownership proof for the https://hstarchitects.com/ URL-prefix
     # property. Emitted as a meta tag on every page rather than as the HTML file
     # Google recommends, because vercel.json sets cleanUrls, which 308-redirects

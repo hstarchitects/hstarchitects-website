@@ -4,27 +4,23 @@ Allow: /
 Disallow: /_
 Disallow: /*?filter=
 
-# Generative / answer engines are welcome to read and cite this site.
+# Generative / answer engines are welcome to read and cite this site. These share
+# one group: under RFC 9309 a crawler obeys only the most specific group that
+# matches it, so a named group listing nothing but Allow would have exempted
+# these agents from the two Disallow rules above.
 User-agent: GPTBot
-Allow: /
 User-agent: OAI-SearchBot
-Allow: /
 User-agent: ChatGPT-User
-Allow: /
 User-agent: ClaudeBot
-Allow: /
 User-agent: Claude-Web
-Allow: /
 User-agent: anthropic-ai
-Allow: /
 User-agent: PerplexityBot
-Allow: /
 User-agent: Google-Extended
-Allow: /
 User-agent: Applebot-Extended
-Allow: /
 User-agent: CCBot
 Allow: /
+Disallow: /_
+Disallow: /*?filter=
 
 Sitemap: https://hstarchitects.com/sitemap.xml
 Host: hstarchitects.com
