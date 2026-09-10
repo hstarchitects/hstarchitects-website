@@ -35,11 +35,11 @@ SITE = {
     "address_country": "AE",
     # Boulevard Plaza Tower 1, Downtown Dubai
     "geo": {"lat": "25.1959", "lng": "55.2745"},
-    # schema.org day tokens, a plain "Sa-Th" string is not parseable
+    # schema.org day tokens; a plain "Sa-Th" string is not parseable
     "hours_days": ["Saturday", "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday"],
     "hours_open": "09:00",
     "hours_close": "18:00",
-    "hours_display": "Saturday to Thursday, 9am, 6pm",
+    "hours_display": "Saturday to Thursday, 9am to 6pm",
     # every emirate/community named in the two source portfolios
     "areas": [
         "Dubai", "Downtown Dubai", "Business Bay", "Dubai Marina", "Emirates Hills",
@@ -69,9 +69,9 @@ NAV = [
 # --------------------------------------------------------------------------
 # Services
 #   Capabilities below are drawn from the two source service lists:
-#   HST     , interior fit out, landscape, conceptual designing, annual
+#   HST profile:      interior fit out, landscape, conceptual designing, annual
 #              maintenance contracts, technical services, furniture, designing
-#   Profile 2, design consultation, concept development & visualisation, space
+#   Second profile:  design consultation, concept development & visualisation, space
 #              planning, material selection & procurement, renovation &
 #              construction management, custom furniture & millwork
 # --------------------------------------------------------------------------
@@ -94,7 +94,7 @@ SERVICES = [
         "intro": (
             "We start with how a space will actually be lived in or worked in, then work "
             "backwards through light, circulation, material and detail until the drawings are "
-            "precise enough to build from, by the same team that will build them."
+            "precise enough to build from. The team that draws them is the team that builds them."
         ),
         "lede": "Design detailed enough to build from.",
         "outcomes": [
@@ -460,7 +460,7 @@ WHY_US = [
     {"t": "A licensed technical services company",
      "d": "HST Architects sits inside HST Group, a licensed UAE building maintenance and technical services company."},
     {"t": "Residential and commercial",
-     "d": "Villas, apartments, offices, showrooms, restaurants and gardens, across Dubai and Abu Dhabi."},
+     "d": "Villas, apartments, offices, showrooms, restaurants and gardens across Dubai and Abu Dhabi."},
     {"t": "Specified for this climate",
      "d": "Materials and planting chosen against Gulf heat, humidity and salinity rather than a European catalogue."},
 ]

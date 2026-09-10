@@ -14,7 +14,7 @@ def img(key, alt, sizes="100vw", cls="", loading="lazy", priority=False, style="
     """Responsive <picture> from the generated manifest."""
     m = MANIFEST.get(key)
     if not m:
-        raise KeyError(f"image '{key}' is not in the manifest, add it to tools/build_images.py")
+        raise KeyError(f"image '{key}' is not in the manifest; add it to tools/build_images.py")
     widths = m["widths"]
     webp = ", ".join(f"/assets/img/{key}-{w['label']}.webp {w['real']}w" for w in widths)
     attrs = [
@@ -305,7 +305,7 @@ def tail(config_js=True):
 
 # ---------------------------------------------------------------- shared partials
 def breadcrumbs(trail):
-    """trail = [(label, url|None)], last item is the current page."""
+    """trail = [(label, url|None)]; the last item is the current page."""
     out = []
     for i, (label, url) in enumerate(trail):
         if url and i < len(trail) - 1:
