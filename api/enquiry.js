@@ -14,7 +14,7 @@
 // Environment variables (Vercel -> Project -> Settings -> Environment Variables):
 //   SMTP_USER    the Gmail address that sends, e.g. hstarchitects.dev@gmail.com
 //   SMTP_PASS    a Google app password for that account, 16 characters  [secret]
-//   ENQUIRY_TO   where enquiries land          (default info@hstarchitects.com)
+//   ENQUIRY_TO   where enquiries land                    (default: SMTP_USER)
 //   SMTP_HOST    (default smtp.gmail.com)
 //   SMTP_PORT    (default 465, implicit TLS)
 //
@@ -29,7 +29,14 @@ const tls = require("tls");
 const SUPABASE_URL = process.env.SUPABASE_URL || "https://mhfempltoebztrvybidb.supabase.co";
 const SUPABASE_KEY = process.env.SUPABASE_ANON_KEY || "sb_publishable_n0lmxgelzVR3py-ZOTDuCQ_O991Dxlr";
 
-const MAIL_TO = process.env.ENQUIRY_TO || "info@hstarchitects.com";
+// Deliver to the sending mailbox itself rather than to info@hstarchitects.com.
+// That address forwards through ImprovMX straight back to this same Gmail, and
+// Gmail silently drops a message arriving with a Message-ID it just sent out.
+// ImprovMX works around it by rewriting the Message-ID and re-signing with its
+// own DKIM key, which breaks DMARC alignment and gets the notification filed as
+// spam or phishing. Skipping the round trip avoids all of that. Set ENQUIRY_TO
+// explicitly once enquiries should reach a mailbox other than the sender's.
+const MAIL_TO = process.env.ENQUIRY_TO || process.env.SMTP_USER || "info@hstarchitects.com";
 const SMTP_HOST = process.env.SMTP_HOST || "smtp.gmail.com";
 const SMTP_PORT = Number(process.env.SMTP_PORT || 465);
 
