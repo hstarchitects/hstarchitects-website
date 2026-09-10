@@ -283,7 +283,9 @@
     // database directly, which is what the site did before it existed: the
     // enquiry is captured either way, it just may wait for someone to look.
     function send(payload) {
-      return fetch("/api/enquiry", {
+      // trailing slash on purpose: vercel.json sets trailingSlash, so the bare
+      // path answers 308 and every submission would pay for an extra round trip
+      return fetch("/api/enquiry/", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload)
