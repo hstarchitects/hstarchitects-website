@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """Shared HTML shell: head, header, drawer, footer, image + icon helpers."""
-import json, os, html
+import json, os, html, zlib
 import urllib.parse
 from content import SITE, NAV, SERVICES
 
@@ -468,13 +468,16 @@ def breadcrumb_ld(trail):
 def faq_block(faqs, heading="Frequently asked questions", intro=None, level="h2"):
     items = []
     for i, f in enumerate(faqs):
+        # crc32, not hash(): str hashes are salted per process, so hash() gave
+        # every build new ids and a diff on every page that has an FAQ
+        fid = f"faq-{i}-{zlib.crc32(f['q'].encode('utf-8')) % 9999}"
         items.append(f'''<div class="faq__item">
   <h3 style="font-size:inherit;font-weight:inherit;letter-spacing:inherit;margin:0">
-    <button class="faq__q" type="button" aria-expanded="false" aria-controls="faq-{i}-{abs(hash(f['q']))%9999}">
+    <button class="faq__q" type="button" aria-expanded="false" aria-controls="{fid}">
       <span>{esc(f["q"])}</span><span class="faq__icon" aria-hidden="true"></span>
     </button>
   </h3>
-  <div class="faq__a" id="faq-{i}-{abs(hash(f['q']))%9999}"><div>{esc(f["a"])}</div></div>
+  <div class="faq__a" id="{fid}"><div>{esc(f["a"])}</div></div>
 </div>''')
     lede = f'<p class="lede" style="margin-top:1rem">{esc(intro)}</p>' if intro else ""
     return f'''<section class="section" aria-labelledby="faq-h">
