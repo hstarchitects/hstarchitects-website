@@ -201,11 +201,17 @@ def analytics():
 # disablePushState: this is a multi-page site, and the project filter's
 # replaceState must not count as a page view. Meta's <noscript> image is left
 # out on purpose: it cannot honour the host or region gate.
+#
+# EU_TZ_GATE returns early on a device set to a European (EEA, UK, Swiss) time
+# zone, including the outermost regions. Shared by the pixel and Clarity so the
+# two can never disagree about who is measured.
+EU_TZ_GATE = r"""var tz="";try{tz=Intl.DateTimeFormat().resolvedOptions().timeZone||"";}catch(e){}
+if(/^Europe\//.test(tz)||/^(Atlantic\/(Reykjavik|Faroe|Madeira|Azores|Canary)|Asia\/(Nicosia|Famagusta)|Arctic\/Longyearbyen|Africa\/Ceuta|Indian\/(Reunion|Mayotte)|America\/(Guadeloupe|Martinique|Cayenne|St_Barthelemy|Marigot))$/.test(tz))return;"""
+
 META_SNIPPET = r"""<script>(function(){
 window.HST_META=false;
 if(location.hostname!=="%(host)s")return;
-var tz="";try{tz=Intl.DateTimeFormat().resolvedOptions().timeZone||"";}catch(e){}
-if(/^Europe\//.test(tz)||/^(Atlantic\/(Reykjavik|Faroe|Madeira|Azores|Canary)|Asia\/(Nicosia|Famagusta)|Arctic\/Longyearbyen|Africa\/Ceuta|Indian\/(Reunion|Mayotte)|America\/(Guadeloupe|Martinique|Cayenne|St_Barthelemy|Marigot))$/.test(tz))return;
+%(eu)s
 window.HST_META=true;
 !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version="2.0";n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,"script","https://connect.facebook.net/en_US/fbevents.js");
 fbq.disablePushState=true;
@@ -223,7 +229,33 @@ def meta_pixel(view=None):
     extra = ""
     if view:
         extra = '\nfbq("track","ViewContent",' + json.dumps(view, ensure_ascii=False, separators=(",", ":")) + ");"
-    return META_SNIPPET % {"id": pid, "host": SITE["domain"].replace("https://", ""), "view": extra}
+    return META_SNIPPET % {"id": pid, "host": SITE["domain"].replace("https://", ""), "view": extra,
+                           "eu": EU_TZ_GATE}
+
+
+# Microsoft Clarity: heatmaps and session replays, to see where the landing page
+# and the enquiry forms lose people. Same production-host and European time-zone
+# gates as the pixel, so it never runs where no consent is asked for. Outside
+# Europe Clarity needs no consent signal. Clarity masks what is typed into
+# inputs, selects and textareas in every masking mode; the data-clarity-mask on
+# the form fields (tools/build_site.py) only restates that. The one that does
+# real work is on the thanks-page heading, where site.js writes the visitor's
+# first name: masking the whole <h1> also scrubs the click text Clarity takes
+# from it. Forms post to /api/enquiry/ even without JS, so fields never end up
+# in a URL that Clarity would record. site.js sends custom events and tags
+# through window.clarity, which exists only when this loaded.
+CLARITY_SNIPPET = r"""<script>(function(){
+if(location.hostname!=="%(host)s")return;
+%(eu)s
+(function(c,l,a,r,i,t,y){c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);})(window,document,"clarity","script","%(id)s");
+})();</script>"""
+
+
+def clarity():
+    cid = SITE.get("clarity_id")
+    if not cid:
+        return ""
+    return CLARITY_SNIPPET % {"id": cid, "host": SITE["domain"].replace("https://", ""), "eu": EU_TZ_GATE}
 
 
 def head(*, title, meta, url, image=None, jsonld=None, robots=None, prototype=False, pixel_view=None, body_class=""):
@@ -274,6 +306,7 @@ def head(*, title, meta, url, image=None, jsonld=None, robots=None, prototype=Fa
 {blocks}
 {analytics()}
 {meta_pixel(pixel_view)}
+{clarity()}
 {vercel_insights()}
 </head>
 <body{f' class="{body_class}"' if body_class else ""}>

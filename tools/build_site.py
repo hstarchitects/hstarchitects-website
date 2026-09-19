@@ -831,23 +831,24 @@ def build_contact():
         <h2 class="h3" style="margin-bottom:.6rem">Send an enquiry</h2>
         <p class="small muted" style="margin-bottom:1.6rem">Fields marked with an asterisk are required.</p>
 
-        <form class="form" id="contact-form" novalidate>
+        <form class="form" id="contact-form" method="post" action="/api/enquiry/" novalidate>
+          <input type="hidden" name="source_page" value="/contact/">
           <div class="form__row">
             <div class="field">
               <label for="f-name">Your name <span class="req" aria-hidden="true">*</span></label>
-              <input id="f-name" name="name" type="text" autocomplete="name" required placeholder="Ali Hassan">
+              <input id="f-name" data-clarity-mask="true" name="name" type="text" autocomplete="name" required placeholder="Ali Hassan">
               <span class="field__err"></span>
             </div>
             <div class="field">
               <label for="f-email">Email <span class="req" aria-hidden="true">*</span></label>
-              <input id="f-email" name="email" type="email" autocomplete="email" required placeholder="you@company.ae">
+              <input id="f-email" data-clarity-mask="true" name="email" type="email" autocomplete="email" required placeholder="you@company.ae">
               <span class="field__err"></span>
             </div>
           </div>
           <div class="form__row">
             <div class="field">
               <label for="f-phone">Phone or WhatsApp</label>
-              <input id="f-phone" name="phone" type="tel" autocomplete="tel" placeholder="+971 50 000 0000">
+              <input id="f-phone" data-clarity-mask="true" name="phone" type="tel" autocomplete="tel" placeholder="+971 50 000 0000">
               <span class="field__err"></span>
             </div>
             <div class="field">
@@ -871,7 +872,7 @@ def build_contact():
           </div>
           <div class="field">
             <label for="f-message">About the project <span class="req" aria-hidden="true">*</span></label>
-            <textarea id="f-message" name="message" required
+            <textarea id="f-message" data-clarity-mask="true" name="message" required
               placeholder="A 4-bedroom villa in Dubai Hills. We want the ground floor reworked and the garden landscaped, ideally starting after Ramadan."></textarea>
             <span class="field__err"></span>
           </div>
@@ -981,16 +982,17 @@ def lp_form():
     return f'''<div class="lp-form-card" id="enquire">
   <h2 class="h3">Tell us about the space</h2>
   <p class="small muted lp-form-card__intro">We arrange a site visit and follow it with a written scope and fee proposal.</p>
-  <form id="consultation-form" class="form" novalidate data-enquiry="consultation">
+  <form id="consultation-form" class="form" method="post" action="/api/enquiry/" novalidate data-enquiry="consultation">
+    <input type="hidden" name="source_page" value="/consultation/">
     <div class="form__row">
       <div class="field">
         <label for="lp-name">Your name <span class="req">*</span></label>
-        <input id="lp-name" name="name" type="text" autocomplete="name" enterkeyhint="next" maxlength="120" placeholder="Ali Hassan" required>
+        <input id="lp-name" data-clarity-mask="true" name="name" type="text" autocomplete="name" enterkeyhint="next" maxlength="120" placeholder="Ali Hassan" required>
         <p class="field__err" id="lp-name-err">Please tell us your name.</p>
       </div>
       <div class="field">
         <label for="lp-phone">Mobile or WhatsApp <span class="req">*</span></label>
-        <input id="lp-phone" name="phone" type="tel" inputmode="tel" autocomplete="tel" enterkeyhint="next" maxlength="40" placeholder="+971 50 000 0000" required>
+        <input id="lp-phone" data-clarity-mask="true" name="phone" type="tel" inputmode="tel" autocomplete="tel" enterkeyhint="next" maxlength="40" placeholder="+971 50 000 0000" required>
         <p class="field__err" id="lp-phone-err">Please enter a mobile or WhatsApp number we can reach you on.</p>
       </div>
     </div>
@@ -1003,12 +1005,12 @@ def lp_form():
       <div class="form-more__body">
         <div class="field">
           <label for="lp-email">Email (optional)</label>
-          <input id="lp-email" name="email" type="email" inputmode="email" autocomplete="email" maxlength="160" placeholder="you@company.ae">
+          <input id="lp-email" data-clarity-mask="true" name="email" type="email" inputmode="email" autocomplete="email" maxlength="160" placeholder="you@company.ae">
           <p class="field__err" id="lp-email-err">Please check the email address, or leave it blank.</p>
         </div>
         <div class="field">
           <label for="lp-message">Anything we should know? (optional)</label>
-          <textarea id="lp-message" name="message" rows="3" maxlength="4000" enterkeyhint="send"
+          <textarea id="lp-message" data-clarity-mask="true" name="message" rows="3" maxlength="4000" enterkeyhint="send"
             placeholder="For example: a 4-bedroom villa in Dubai Hills, ground floor and garden."></textarea>
         </div>
       </div>
@@ -1177,7 +1179,7 @@ def build_consultation_thanks():
 <section class="lp-thanks">
   <div class="wrap wrap-narrow">
     <span class="eyebrow">Request received</span>
-    <h1 class="lp-h1">Thank you<span data-lead-name></span>. <span class="lite">Your request has reached the studio.</span></h1>
+    <h1 class="lp-h1" data-clarity-mask="true">Thank you<span data-lead-name></span>. <span class="lite">Your request has reached the studio.</span></h1>
     <p class="lede">We will contact you on the number you gave us to arrange a site visit, then follow it with a written
       scope and fee proposal.</p>
     <p class="small muted">The studio is open {esc(SITE["hours_display"])}.</p>
@@ -1198,6 +1200,17 @@ def build_privacy():
     actually does; nothing here is boilerplate for things the site does not do."""
     trail = [("Home", "/"), ("Privacy", "/privacy/")]
     updated = "19 September 2026"
+    # Clarity is described only while it is switched on (SITE["clarity_id"]).
+    # Switching it on changes this notice, so move `updated` in the same commit.
+    clarity_p = clarity_choice = ""
+    if SITE.get("clarity_id"):
+        clarity_p = """<p><strong>Microsoft Clarity</strong> records how pages are used, such as clicks, scrolling and
+      mouse movement, so we can see where the site is hard to use. Microsoft shows this to us as heatmaps and replays
+      of visits. What you type into our forms is masked in your browser and is never recorded. Clarity uses first- and
+      third-party cookies, and Microsoft may also use the data it collects for its own purposes, including advertising.
+      Like the Meta Pixel, it does not run on devices set to a European time zone.</p>"""
+        clarity_choice = """ Microsoft explains how Clarity handles data in the
+      <a href="https://privacy.microsoft.com/privacystatement" rel="noopener">Microsoft privacy statement</a>."""
     html_out = head(title="Privacy notice | HST Architects",
                     meta="How HST Architects handles the details you send through this website, and the measurement tools it uses.",
                     url="/privacy/") + header("") + drawer("") + f'''
@@ -1219,9 +1232,10 @@ def build_privacy():
       <a href="mailto:{esc(SITE["email"])}">{esc(SITE["email"])}</a>.</p>
 
     <h2 class="h3">When you send an enquiry</h2>
-    <p>The form asks for your name, email address and project details, and optionally your phone number, the
-      service you need and an indicative budget. We also record which page of the site you sent it from and, if you
-      arrived from one of our adverts, the campaign that brought you.</p>
+    <p>Our contact form asks for your name, your email address and a description of your project, and optionally
+      your phone number, the service you need and an indicative budget. Our consultation form asks for your name and a
+      mobile number, and optionally your email address, the service you need and a note. We also record which page of
+      the site you sent it from and, if you arrived from one of our adverts, the campaign that brought you.</p>
     <p>Your enquiry is stored in our database, hosted by Supabase, and a copy is emailed to the studio inbox, hosted by
       Google. We use it to reply to you about your project and for our own business records. We do not sell it.</p>
 
@@ -1236,12 +1250,13 @@ def build_privacy():
       sends anything.</p>
     <p><strong>Vercel Web Analytics and Speed Insights</strong> count visits and measure how fast pages load. They use no
       cookies and do not identify you.</p>
+    {clarity_p}
 
     <h2 class="h3">Your choices</h2>
     <p>You can block or delete cookies in your browser settings. You can opt out of Google Analytics with
       <a href="https://tools.google.com/dlpage/gaoptout" rel="noopener">Google&rsquo;s opt-out add-on</a>, and control how
       Meta uses information for advertising in your
-      <a href="https://www.facebook.com/adpreferences/ad_settings" rel="noopener">Meta ad preferences</a>.</p>
+      <a href="https://www.facebook.com/adpreferences/ad_settings" rel="noopener">Meta ad preferences</a>.{clarity_choice}</p>
 
     <h2 class="h3">Your details, your rights</h2>
     <p>You can ask us for a copy of the details we hold about you, ask us to correct them, or ask us to delete them, by

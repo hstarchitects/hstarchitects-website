@@ -29,6 +29,13 @@
     if (typeof window.gtag !== "function") return;
     try { window.gtag("event", name, params || {}); } catch (e) {}
   }
+  // Microsoft Clarity: custom events and session tags, so replays and heatmaps
+  // can be filtered to ad visitors, form trouble and leads. window.clarity is
+  // defined only where the head snippet loaded it. Never given personal data.
+  function clarityCall() {
+    if (typeof window.clarity !== "function") return;
+    try { window.clarity.apply(window, arguments); } catch (e) {}
+  }
   // One id per conversion, shared by the browser pixel and the server-side
   // Conversions API call, so Meta counts the pair once.
   function newEventId() {
@@ -62,6 +69,12 @@
     }
     try { sessionStorage.setItem("hst_attr", JSON.stringify(found)); } catch (e) {}
   })();
+  (function () {
+    var a = attribution();
+    if (!a) return;
+    if (a.utm_campaign) clarityCall("set", "campaign", a.utm_campaign);
+    if (a.fbclid || a.gclid) clarityCall("set", "ad_click", a.fbclid ? "meta" : "google");
+  })();
 
   // _fbc fallback. The pixel writes this cookie itself from ?fbclid= when it
   // loads; this only matters when fbevents.js is blocked, so /api/enquiry can
@@ -90,6 +103,7 @@
     contacted[method] = true;
     metaTrack("Contact", { contact_method: method });
     gaEvent("contact_click", { method: method });
+    clarityCall("event", "contact_" + method);
   });
 
   /* ---------- theme ------------------------------------------------------ */
@@ -363,6 +377,9 @@
           lead_budget: payload.budget || "not specified",
           form_page: window.location.pathname
         });
+        clarityCall("event", "lead");
+        clarityCall("set", "lead_form", "contact");
+        clarityCall("upgrade", "lead");
         form.reset();
         status.textContent = "Thank you. Your enquiry has reached the studio and we will be in touch.";
         status.classList.add("is-ok");
@@ -469,6 +486,16 @@
       if (e) { if (msg) e.textContent = msg; field.setAttribute("aria-describedby", e.id); }
       field.setAttribute("aria-invalid", "true");
     }
+    // first real input into the form, once per page view. Not focus: toForm()
+    // focuses the name field itself whenever a call-to-action is tapped.
+    var lpStarted = false;
+    var lpStart = function () {
+      if (lpStarted) return;
+      lpStarted = true;
+      clarityCall("event", "lp_form_start");
+    };
+    lp.addEventListener("input", lpStart);
+    lp.addEventListener("change", lpStart);
     lp.querySelectorAll("input, textarea").forEach(function (f) {
       f.addEventListener("input", function () {
         var w = f.closest(".field");
@@ -502,10 +529,14 @@
       if (n) setTimeout(function () { n.focus({ preventScroll: true }); }, reduced ? 0 : 450);
     }
     doc.querySelectorAll("[data-focus-form], [data-dock-cta]").forEach(function (a) {
-      a.addEventListener("click", function (e) { e.preventDefault(); toForm(); });
+      a.addEventListener("click", function (e) { e.preventDefault(); clarityCall("event", "lp_cta_click"); toForm(); });
     });
     doc.querySelectorAll("[data-pick-service]").forEach(function (b) {
-      b.addEventListener("click", function () { setService(b.getAttribute("data-pick-service")); toForm(); });
+      b.addEventListener("click", function () {
+        clarityCall("event", "lp_cta_click");
+        setService(b.getAttribute("data-pick-service"));
+        toForm();
+      });
     });
 
     lp.addEventListener("submit", function (e) {
@@ -525,6 +556,7 @@
         lpFail(email, "Please check the email address, or leave it blank."); ok = false;
       }
       if (!ok) {
+        clarityCall("event", "lp_form_error");
         lpStatus.textContent = "Please check the highlighted fields.";
         lpStatus.classList.add("is-err");
         var bad = lp.querySelector(".field--error input, .field--error textarea");
@@ -568,6 +600,7 @@
         window.location.assign("/consultation/thanks/");
       }).catch(function (err) {
         console.error("[hst] consultation request failed", err);
+        clarityCall("event", "lp_form_send_failed");
         if (err && err.final) {
           lpStatus.textContent = err.message;
         } else {
@@ -589,6 +622,10 @@
       lead_service: l.service || "not specified",
       form_page: "/consultation/"
     });
+    clarityCall("event", "lead");
+    clarityCall("set", "lead_form", "consultation");
+    if (l.service) clarityCall("set", "lead_service", l.service);
+    clarityCall("upgrade", "lead");
   }
 
   // thanks page: fire once, then forget the token

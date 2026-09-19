@@ -55,6 +55,7 @@ fbq.disablePushState=true;
 fbq("init","1929894471728689");
 fbq("track","PageView");
 })();</script>
+
 <script>(function(){
 if(location.hostname!=="hstarchitects.com")return;
 window.va=window.va||function(){(window.vaq=window.vaq||[]).push(arguments);};
@@ -101,16 +102,17 @@ var s=document.createElement("script");s.src="/_vercel/speed-insights/script.js"
       <div class="lp-form-card" id="enquire">
   <h2 class="h3">Tell us about the space</h2>
   <p class="small muted lp-form-card__intro">We arrange a site visit and follow it with a written scope and fee proposal.</p>
-  <form id="consultation-form" class="form" novalidate data-enquiry="consultation">
+  <form id="consultation-form" class="form" method="post" action="/api/enquiry/" novalidate data-enquiry="consultation">
+    <input type="hidden" name="source_page" value="/consultation/">
     <div class="form__row">
       <div class="field">
         <label for="lp-name">Your name <span class="req">*</span></label>
-        <input id="lp-name" name="name" type="text" autocomplete="name" enterkeyhint="next" maxlength="120" placeholder="Ali Hassan" required>
+        <input id="lp-name" data-clarity-mask="true" name="name" type="text" autocomplete="name" enterkeyhint="next" maxlength="120" placeholder="Ali Hassan" required>
         <p class="field__err" id="lp-name-err">Please tell us your name.</p>
       </div>
       <div class="field">
         <label for="lp-phone">Mobile or WhatsApp <span class="req">*</span></label>
-        <input id="lp-phone" name="phone" type="tel" inputmode="tel" autocomplete="tel" enterkeyhint="next" maxlength="40" placeholder="+971 50 000 0000" required>
+        <input id="lp-phone" data-clarity-mask="true" name="phone" type="tel" inputmode="tel" autocomplete="tel" enterkeyhint="next" maxlength="40" placeholder="+971 50 000 0000" required>
         <p class="field__err" id="lp-phone-err">Please enter a mobile or WhatsApp number we can reach you on.</p>
       </div>
     </div>
@@ -123,12 +125,12 @@ var s=document.createElement("script");s.src="/_vercel/speed-insights/script.js"
       <div class="form-more__body">
         <div class="field">
           <label for="lp-email">Email (optional)</label>
-          <input id="lp-email" name="email" type="email" inputmode="email" autocomplete="email" maxlength="160" placeholder="you@company.ae">
+          <input id="lp-email" data-clarity-mask="true" name="email" type="email" inputmode="email" autocomplete="email" maxlength="160" placeholder="you@company.ae">
           <p class="field__err" id="lp-email-err">Please check the email address, or leave it blank.</p>
         </div>
         <div class="field">
           <label for="lp-message">Anything we should know? (optional)</label>
-          <textarea id="lp-message" name="message" rows="3" maxlength="4000" enterkeyhint="send"
+          <textarea id="lp-message" data-clarity-mask="true" name="message" rows="3" maxlength="4000" enterkeyhint="send"
             placeholder="For example: a 4-bedroom villa in Dubai Hills, ground floor and garden."></textarea>
         </div>
       </div>
@@ -258,39 +260,39 @@ var s=document.createElement("script");s.src="/_vercel/speed-insights/script.js"
     </div>
     <div class="faq reveal"><div class="faq__item">
   <h3 style="font-size:inherit;font-weight:inherit;letter-spacing:inherit;margin:0">
-    <button class="faq__q" type="button" aria-expanded="false" aria-controls="faq-0-1482">
+    <button class="faq__q" type="button" aria-expanded="false" aria-controls="faq-0-2">
       <span>What does a project cost?</span><span class="faq__icon" aria-hidden="true"></span>
     </button>
   </h3>
-  <div class="faq__a" id="faq-0-1482"><div>It depends on the property, the scope and the finish level, so we do not publish rates. We visit the site, agree the scope with you in writing, and quote a fixed fee against it.</div></div>
+  <div class="faq__a" id="faq-0-2"><div>It depends on the property, the scope and the finish level, so we do not publish rates. We visit the site, agree the scope with you in writing, and quote a fixed fee against it.</div></div>
 </div><div class="faq__item">
   <h3 style="font-size:inherit;font-weight:inherit;letter-spacing:inherit;margin:0">
-    <button class="faq__q" type="button" aria-expanded="false" aria-controls="faq-1-6723">
+    <button class="faq__q" type="button" aria-expanded="false" aria-controls="faq-1-2544">
       <span>How long does a villa renovation take in Dubai?</span><span class="faq__icon" aria-hidden="true"></span>
     </button>
   </h3>
-  <div class="faq__a" id="faq-1-6723"><div>It depends entirely on scope. A single-room refresh and a full strip-out with structural alterations are very different programmes. We issue a written programme after surveying the property rather than quoting a generic timescale.</div></div>
+  <div class="faq__a" id="faq-1-2544"><div>It depends entirely on scope. A single-room refresh and a full strip-out with structural alterations are very different programmes. We issue a written programme after surveying the property rather than quoting a generic timescale.</div></div>
 </div><div class="faq__item">
   <h3 style="font-size:inherit;font-weight:inherit;letter-spacing:inherit;margin:0">
-    <button class="faq__q" type="button" aria-expanded="false" aria-controls="faq-2-1026">
+    <button class="faq__q" type="button" aria-expanded="false" aria-controls="faq-2-5610">
       <span>Do you handle both the design and the construction?</span><span class="faq__icon" aria-hidden="true"></span>
     </button>
   </h3>
-  <div class="faq__a" id="faq-2-1026"><div>Yes. HST is a design-and-build practice: our services include full design implementation by our own team, based on the final designs and drawings. We can also build to another consultant&#x27;s drawings.</div></div>
+  <div class="faq__a" id="faq-2-5610"><div>Yes. HST is a design-and-build practice: our services include full design implementation by our own team, based on the final designs and drawings. We can also build to another consultant&#x27;s drawings.</div></div>
 </div><div class="faq__item">
   <h3 style="font-size:inherit;font-weight:inherit;letter-spacing:inherit;margin:0">
-    <button class="faq__q" type="button" aria-expanded="false" aria-controls="faq-3-5223">
+    <button class="faq__q" type="button" aria-expanded="false" aria-controls="faq-3-4025">
       <span>Do you work on apartments as well as villas?</span><span class="faq__icon" aria-hidden="true"></span>
     </button>
   </h3>
-  <div class="faq__a" id="faq-3-5223"><div>Yes. Our portfolio includes apartment and penthouse redesigns in Dubai Marina alongside villa work in Emirates Hills and Jumeirah, plus offices, showrooms and hospitality interiors.</div></div>
+  <div class="faq__a" id="faq-3-4025"><div>Yes. Our portfolio includes apartment and penthouse redesigns in Dubai Marina alongside villa work in Emirates Hills and Jumeirah, plus offices, showrooms and hospitality interiors.</div></div>
 </div><div class="faq__item">
   <h3 style="font-size:inherit;font-weight:inherit;letter-spacing:inherit;margin:0">
-    <button class="faq__q" type="button" aria-expanded="false" aria-controls="faq-4-3169">
+    <button class="faq__q" type="button" aria-expanded="false" aria-controls="faq-4-2592">
       <span>What areas of the UAE does HST Architects cover?</span><span class="faq__icon" aria-hidden="true"></span>
     </button>
   </h3>
-  <div class="faq__a" id="faq-4-3169"><div>We work across Dubai, including Downtown, Business Bay, Emirates Hills, Dubai Marina, Jumeirah, Al Barsha, Damac Hills and District One, and take projects in Abu Dhabi.</div></div>
+  <div class="faq__a" id="faq-4-2592"><div>We work across Dubai, including Downtown, Business Bay, Emirates Hills, Dubai Marina, Jumeirah, Al Barsha, Damac Hills and District One, and take projects in Abu Dhabi.</div></div>
 </div></div>
   </div>
 </section>

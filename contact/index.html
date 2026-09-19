@@ -55,6 +55,7 @@ fbq.disablePushState=true;
 fbq("init","1929894471728689");
 fbq("track","PageView");
 })();</script>
+
 <script>(function(){
 if(location.hostname!=="hstarchitects.com")return;
 window.va=window.va||function(){(window.vaq=window.vaq||[]).push(arguments);};
@@ -120,23 +121,24 @@ var s=document.createElement("script");s.src="/_vercel/speed-insights/script.js"
         <h2 class="h3" style="margin-bottom:.6rem">Send an enquiry</h2>
         <p class="small muted" style="margin-bottom:1.6rem">Fields marked with an asterisk are required.</p>
 
-        <form class="form" id="contact-form" novalidate>
+        <form class="form" id="contact-form" method="post" action="/api/enquiry/" novalidate>
+          <input type="hidden" name="source_page" value="/contact/">
           <div class="form__row">
             <div class="field">
               <label for="f-name">Your name <span class="req" aria-hidden="true">*</span></label>
-              <input id="f-name" name="name" type="text" autocomplete="name" required placeholder="Ali Hassan">
+              <input id="f-name" data-clarity-mask="true" name="name" type="text" autocomplete="name" required placeholder="Ali Hassan">
               <span class="field__err"></span>
             </div>
             <div class="field">
               <label for="f-email">Email <span class="req" aria-hidden="true">*</span></label>
-              <input id="f-email" name="email" type="email" autocomplete="email" required placeholder="you@company.ae">
+              <input id="f-email" data-clarity-mask="true" name="email" type="email" autocomplete="email" required placeholder="you@company.ae">
               <span class="field__err"></span>
             </div>
           </div>
           <div class="form__row">
             <div class="field">
               <label for="f-phone">Phone or WhatsApp</label>
-              <input id="f-phone" name="phone" type="tel" autocomplete="tel" placeholder="+971 50 000 0000">
+              <input id="f-phone" data-clarity-mask="true" name="phone" type="tel" autocomplete="tel" placeholder="+971 50 000 0000">
               <span class="field__err"></span>
             </div>
             <div class="field">
@@ -160,7 +162,7 @@ var s=document.createElement("script");s.src="/_vercel/speed-insights/script.js"
           </div>
           <div class="field">
             <label for="f-message">About the project <span class="req" aria-hidden="true">*</span></label>
-            <textarea id="f-message" name="message" required
+            <textarea id="f-message" data-clarity-mask="true" name="message" required
               placeholder="A 4-bedroom villa in Dubai Hills. We want the ground floor reworked and the garden landscaped, ideally starting after Ramadan."></textarea>
             <span class="field__err"></span>
           </div>

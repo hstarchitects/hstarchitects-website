@@ -336,6 +336,33 @@ async function sendMetaLead(req, payload, row) {
   }
 }
 
+/* ------------------------------------------------------- no-JS form posts */
+
+// The forms carry method="post" action="/api/enquiry/", so a submission made
+// before site.js has attached its handler (slow connection) or without it
+// (script blocked) arrives here url-encoded instead of turning into a GET that
+// would put the visitor's details in the address bar. Such a visitor needs a
+// page back, not JSON: success goes to the thanks page, a refusal gets a short
+// page saying why, with a way back to the form.
+const FORM_PAGES = ["/contact/", "/consultation/"];
+
+function htmlEsc(s) {
+  return String(s).replace(/[&<>"']/g, function (c) {
+    return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
+  });
+}
+
+function refusalPage(message, back) {
+  return '<!doctype html><html lang="en"><head><meta charset="utf-8">' +
+    '<meta name="viewport" content="width=device-width, initial-scale=1"><meta name="robots" content="noindex">' +
+    "<title>Your enquiry was not sent | HST Architects</title></head>" +
+    '<body style="font:16px/1.6 system-ui,sans-serif;max-width:34rem;margin:4rem auto;padding:0 1rem;color:#16202b">' +
+    '<h1 style="font-size:1.4rem">Your enquiry was not sent</h1>' +
+    "<p>" + htmlEsc(message) + "</p>" +
+    '<p><a href="' + htmlEsc(back) + '">Back to the form</a>, or call ' +
+    '<a href="tel:+971503999314">+971 50 399 9314</a>.</p></body></html>';
+}
+
 /* ----------------------------------------------------------------- handler */
 
 module.exports = async (req, res) => {
@@ -344,17 +371,29 @@ module.exports = async (req, res) => {
     return res.status(405).json({ error: "Use POST." });
   }
 
+  const native = /application\/x-www-form-urlencoded/i.test(String((req.headers && req.headers["content-type"]) || ""));
+  const reply = function (code, body) {
+    if (!native) return res.status(code).json(body);
+    if (code === 200) {
+      res.setHeader("Location", "/consultation/thanks/");
+      return res.status(303).end();
+    }
+    const from = payload && typeof payload === "object" ? str(payload.source_page, 200) : null;
+    res.setHeader("Content-Type", "text/html; charset=utf-8");
+    return res.status(code).send(refusalPage(body.error, FORM_PAGES.indexOf(from) !== -1 ? from : "/contact/"));
+  };
+
   let payload = req.body;
   if (typeof payload === "string") {
     try { payload = JSON.parse(payload); } catch (_) { payload = null; }
   }
   if (!payload || typeof payload !== "object") {
-    return res.status(400).json({ error: "Expected a JSON body." });
+    return reply(400, { error: "Expected a JSON body." });
   }
 
   // The honeypot is a field no human can see. Answer as though it worked, so a
   // bot learns nothing from the response, and drop the submission on the floor.
-  if (str(payload.company, 200)) return res.status(200).json({ ok: true });
+  if (str(payload.company, 200)) return reply(200, { ok: true });
 
   const row = {
     name: str(payload.name, LIMITS.name),
@@ -366,19 +405,25 @@ module.exports = async (req, res) => {
     source_page: str(payload.source_page, LIMITS.source_page),
   };
 
-  if (!row.name) return res.status(400).json({ error: "A name is required." });
+  if (!row.name) return reply(400, { error: "A name is required." });
   // The contact page asks for an email; the ads landing page asks for a phone
   // number first and makes email optional. Either way there must be one way
   // back to the person, and an email that is given must look like one.
   if (row.email && !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(row.email)) {
-    return res.status(400).json({ error: "Please check the email address, or leave it blank." });
+    return reply(400, { error: "Please check the email address, or leave it blank." });
   }
   const phoneDigits = (row.phone || "").replace(/\D/g, "");
   if (!row.email && (phoneDigits.length < 8 || phoneDigits.length > 15)) {
-    return res.status(400).json({ error: "Please leave a phone number or an email address." });
+    return reply(400, { error: "Please leave a phone number or an email address." });
+  }
+  // The landing page makes the note optional; site.js composes a message when
+  // it is short, and this does the same for a form posted without site.js.
+  if (row.source_page === "/consultation/" && (!row.message || row.message.length < 10)) {
+    const base = "Consultation request from the landing page" + (row.service ? " (" + row.service + ")" : "") + ".";
+    row.message = row.message ? base + " Note: " + row.message : base;
   }
   if (!row.message || row.message.length < 10) {
-    return res.status(400).json({ error: "Please say a little about the project." });
+    return reply(400, { error: "Please say a little about the project." });
   }
 
   const attr = cleanAttribution(payload.attribution);
@@ -469,10 +514,10 @@ module.exports = async (req, res) => {
 
   if (!stored && !emailed) {
     console.error("[enquiry] lost", { storeError: storeError, emailError: emailError });
-    return res.status(502).json({ error: "Could not record that enquiry." });
+    return reply(502, { error: "Could not record that enquiry." });
   }
   if (!stored) console.error("[enquiry] not stored", storeError);
   if (!emailed) console.error("[enquiry] not emailed", emailError);
 
-  return res.status(200).json({ ok: true, stored: stored, emailed: emailed });
+  return reply(200, { ok: true, stored: stored, emailed: emailed });
 };

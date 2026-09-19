@@ -62,6 +62,9 @@ SITE = {
     # Speed Insights free tier is 10,000 events per rolling 30 days for the whole
     # team; half the page loads is plenty for a real-experience score.
     "speed_insights_sample_rate": 0.5,
+    # Microsoft Clarity project ID (heatmaps and session replays). Public by
+    # design, like the pixel ID. Empty means the tag is not emitted at all.
+    "clarity_id": "",
     # IndexNow shared secret. Proof of ownership is the matching file served at
     # /<key>.txt, so the key is deliberately public. Rotating it means changing
     # this line and re-running the build; the old file simply stops being served.
