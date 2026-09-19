@@ -36,10 +36,13 @@
     return "ev-" + Date.now().toString(36) + "-" + Math.random().toString(36).slice(2, 12);
   }
 
-  // Campaign attribution, first touch per browser session. An ad click lands
-  // with utm_* and a click id; the visitor may read three pages before they
-  // enquire, so the parameters are kept and sent with the enquiry, which is how
-  // the studio learns which advert produced it.
+  // Campaign attribution. An ad click lands with utm_* and a click id; the
+  // visitor may read three pages before they enquire, so the parameters are kept
+  // for the tab and sent with the enquiry, which is how the studio learns which
+  // advert produced it. The latest tagged landing wins and replaces the whole
+  // record: that is the click that brought the person back, and it is what
+  // Meta's own _fbc cookie reflects, so the two never disagree. An untagged page
+  // view leaves the record alone.
   var ATTR_KEYS = ["utm_source", "utm_medium", "utm_campaign", "utm_content", "utm_term", "utm_id", "fbclid", "gclid"];
   function attribution() {
     try { return JSON.parse(sessionStorage.getItem("hst_attr") || "null"); } catch (e) { return null; }
@@ -52,7 +55,7 @@
       var v = q.get(k);
       if (v) { found[k] = v.slice(0, 200); any = true; }
     });
-    if (!any || attribution()) return;
+    if (!any) return;
     found.landing = window.location.pathname;
     if (doc.referrer) {
       try { found.referrer = new URL(doc.referrer).hostname; } catch (e) {}
