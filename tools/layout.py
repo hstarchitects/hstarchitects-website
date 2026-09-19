@@ -138,14 +138,16 @@ FONTS = ("https://fonts.googleapis.com/css2?"
 # and Vercel preview builds do not pollute the property with fake sessions.
 #
 # Consent Mode v2 defaults are declared before the tag loads. Advertising storage
-# is denied everywhere, because this site runs no ads and has no use for it. In
+# is granted outside Europe, because the studio now advertises and Google Ads
+# conversion measurement and remarketing need it; this matches the Meta Pixel
+# posture below, where UAE visitors are measured and told so in /privacy/. In
 # the EEA and the UK analytics storage is denied too, so visitors there are
 # measured without cookies unless and until a consent banner grants it. The UAE
 # audience, which is who this site is for, is measured normally.
 GA_SNIPPET = """<script>(function(){
 if(location.hostname!=="%(host)s")return;
 window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}window.gtag=gtag;
-gtag("consent","default",{ad_storage:"denied",ad_user_data:"denied",ad_personalization:"denied",analytics_storage:"granted"});
+gtag("consent","default",{ad_storage:"granted",ad_user_data:"granted",ad_personalization:"granted",analytics_storage:"granted"});
 gtag("consent","default",{region:["AT","BE","BG","HR","CY","CZ","DK","EE","FI","FR","DE","GR","HU","IE","IT","LV","LT","LU","MT","NL","PL","PT","RO","SK","SI","ES","SE","IS","LI","NO","GB","CH"],ad_storage:"denied",ad_user_data:"denied",ad_personalization:"denied",analytics_storage:"denied"});
 var s=document.createElement("script");s.async=true;s.src="https://www.googletagmanager.com/gtag/js?id=%(id)s";document.head.appendChild(s);
 gtag("js",new Date());gtag("config","%(id)s");
@@ -183,7 +185,47 @@ def analytics():
     return GA_SNIPPET % {"id": gid, "host": SITE["domain"].replace("https://", "")}
 
 
-def head(*, title, meta, url, image=None, jsonld=None, robots=None, prototype=False):
+# Meta Pixel. Same production-only guard as the GA tag, so local previews and
+# Vercel preview deployments never send events to the ads account.
+#
+# Consent: no UAE statute expressly requires a cookie banner, so UAE visitors are
+# measured by default and told so in /privacy/, which Meta's Business Tools Terms
+# require wherever the pixel runs. For a device on a European time zone the pixel
+# is never loaded at all: no fetch, no cookie, no event. That is a best-effort
+# heuristic, not a guarantee (a device can carry any time zone), so the server
+# repeats the check on Vercel's IP country before the Conversions API sends
+# anything.
+#
+# window.HST_META is the single switch that site.js and /api/enquiry read.
+# disablePushState: this is a multi-page site, and the project filter's
+# replaceState must not count as a page view. Meta's <noscript> image is left
+# out on purpose: it cannot honour the host or region gate.
+META_SNIPPET = r"""<script>(function(){
+window.HST_META=false;
+if(location.hostname!=="%(host)s")return;
+var tz="";try{tz=Intl.DateTimeFormat().resolvedOptions().timeZone||"";}catch(e){}
+if(/^Europe\//.test(tz)||/^(Atlantic\/(Reykjavik|Faroe|Madeira|Azores|Canary)|Asia\/(Nicosia|Famagusta)|Arctic\/Longyearbyen|Africa\/Ceuta|Indian\/(Reunion|Mayotte)|America\/(Guadeloupe|Martinique|Cayenne|St_Barthelemy|Marigot))$/.test(tz))return;
+window.HST_META=true;
+!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version="2.0";n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,"script","https://connect.facebook.net/en_US/fbevents.js");
+fbq.disablePushState=true;
+fbq("init","%(id)s");
+fbq("track","PageView");%(view)s
+})();</script>"""
+
+
+def meta_pixel(view=None):
+    """Base pixel for every page. `view` adds a ViewContent for the page's subject,
+    used on project and service pages so ads can retarget people by interest."""
+    pid = SITE.get("meta_pixel_id")
+    if not pid:
+        return ""
+    extra = ""
+    if view:
+        extra = '\nfbq("track","ViewContent",' + json.dumps(view, ensure_ascii=False, separators=(",", ":")) + ");"
+    return META_SNIPPET % {"id": pid, "host": SITE["domain"].replace("https://", ""), "view": extra}
+
+
+def head(*, title, meta, url, image=None, jsonld=None, robots=None, prototype=False, pixel_view=None):
     canonical = SITE["domain"] + url
     og_img = image or og_url("hero/hero-pool-dusk")
     robots_tag = robots or "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1"
@@ -230,6 +272,7 @@ def head(*, title, meta, url, image=None, jsonld=None, robots=None, prototype=Fa
 <script>(function(){{var r=document.documentElement;r.className+=" js";try{{var t=localStorage.getItem("hst-theme")||(matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light");r.setAttribute("data-theme",t);}}catch(e){{}}}})();</script>
 {blocks}
 {analytics()}
+{meta_pixel(pixel_view)}
 {vercel_insights()}
 </head>
 <body>
@@ -348,7 +391,7 @@ def footer():
     </p>
     <div class="footer__bottom">
       <span>&copy; <span data-year>2026</span> {esc(SITE['name'])}, part of {esc(SITE['legal'])}. All rights reserved.</span>
-      <span>Interior design &middot; Renovation &amp; fit-out &middot; Landscaping &middot; Dubai, UAE</span>
+      <span>Interior design &middot; Renovation &amp; fit-out &middot; Landscaping &middot; Dubai, UAE &middot; <a href="/privacy/">Privacy</a></span>
     </div>
   </div>
 </footer>'''

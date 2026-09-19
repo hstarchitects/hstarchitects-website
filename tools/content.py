@@ -53,6 +53,10 @@ SITE = {
     # Google Analytics 4 measurement ID. The tag is only injected on the live
     # host, so local builds and Vercel preview deployments never send events.
     "ga4_id": "G-1EGDSF9VXQ",
+    # Meta Pixel (dataset "HST Architect - Web Dataset" in the HST Architects
+    # Decoration Design portfolio). Public by design: it ships in every page. The
+    # Conversions API token is a secret and lives only in Vercel as META_CAPI_TOKEN.
+    "meta_pixel_id": "1929894471728689",
     # Vercel Web Analytics + Speed Insights, first-party and cookieless.
     "vercel_insights": True,
     # Speed Insights free tier is 10,000 events per rolling 30 days for the whole

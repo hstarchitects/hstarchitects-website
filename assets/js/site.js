@@ -9,6 +9,86 @@
   var root = doc.documentElement;
   var reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
+  /* ---------- measurement -------------------------------------------------- */
+  // Every helper below is a no-op unless its tag actually loaded, so local
+  // previews, Vercel previews and visitors the tags skip send nothing.
+
+  // Meta: window.HST_META is set by the head snippet (tools/layout.py), true
+  // only on the production host for visitors outside Europe.
+  function metaOn() {
+    return window.HST_META === true && typeof window.fbq === "function";
+  }
+  function metaTrack(name, params, eventId) {
+    if (!metaOn()) return;
+    try {
+      if (eventId) window.fbq("track", name, params || {}, { eventID: eventId });
+      else window.fbq("track", name, params || {});
+    } catch (e) {}
+  }
+  function gaEvent(name, params) {
+    if (typeof window.gtag !== "function") return;
+    try { window.gtag("event", name, params || {}); } catch (e) {}
+  }
+  // One id per conversion, shared by the browser pixel and the server-side
+  // Conversions API call, so Meta counts the pair once.
+  function newEventId() {
+    try { if (window.crypto && crypto.randomUUID) return crypto.randomUUID(); } catch (e) {}
+    return "ev-" + Date.now().toString(36) + "-" + Math.random().toString(36).slice(2, 12);
+  }
+
+  // Campaign attribution, first touch per browser session. An ad click lands
+  // with utm_* and a click id; the visitor may read three pages before they
+  // enquire, so the parameters are kept and sent with the enquiry, which is how
+  // the studio learns which advert produced it.
+  var ATTR_KEYS = ["utm_source", "utm_medium", "utm_campaign", "utm_content", "utm_term", "utm_id", "fbclid", "gclid"];
+  function attribution() {
+    try { return JSON.parse(sessionStorage.getItem("hst_attr") || "null"); } catch (e) { return null; }
+  }
+  (function () {
+    var q;
+    try { q = new URL(window.location.href).searchParams; } catch (e) { return; }
+    var found = {}, any = false;
+    ATTR_KEYS.forEach(function (k) {
+      var v = q.get(k);
+      if (v) { found[k] = v.slice(0, 200); any = true; }
+    });
+    if (!any || attribution()) return;
+    found.landing = window.location.pathname;
+    if (doc.referrer) {
+      try { found.referrer = new URL(doc.referrer).hostname; } catch (e) {}
+    }
+    try { sessionStorage.setItem("hst_attr", JSON.stringify(found)); } catch (e) {}
+  })();
+
+  // _fbc fallback. The pixel writes this cookie itself from ?fbclid= when it
+  // loads; this only matters when fbevents.js is blocked, so /api/enquiry can
+  // still attribute the lead to the ad click. Format per Meta:
+  // fb.<subdomainIndex>.<creation time in ms>.<fbclid>, fbclid unmodified.
+  (function () {
+    if (window.HST_META !== true) return;
+    var id = null;
+    try { id = new URL(window.location.href).searchParams.get("fbclid"); } catch (e) {}
+    if (!id || !/^[A-Za-z0-9_-]{8,500}$/.test(id)) return;
+    var m = doc.cookie.match(/(?:^|;\s*)_fbc=([^;]+)/);
+    if (m && m[1].slice(-id.length) === id) return;
+    doc.cookie = "_fbc=fb.1." + Date.now() + "." + id +
+      "; max-age=7776000; path=/; SameSite=Lax; Secure";
+  })();
+
+  // Contact: taps on phone, WhatsApp and email. Once per channel per page view,
+  // so a double tap is not two contacts.
+  var contacted = {};
+  doc.addEventListener("click", function (e) {
+    var a = e.target.closest && e.target.closest('a[href^="tel:"], a[href^="https://wa.me/"], a[href^="mailto:"]');
+    if (!a) return;
+    var href = a.getAttribute("href");
+    var method = href.indexOf("tel:") === 0 ? "phone" : href.indexOf("mailto:") === 0 ? "email" : "whatsapp";
+    if (contacted[method]) return;
+    contacted[method] = true;
+    metaTrack("Contact", { contact_method: method });
+    gaEvent("contact_click", { method: method });
+  });
+
   /* ---------- theme ------------------------------------------------------ */
   function applyTheme(t) {
     root.setAttribute("data-theme", t);
@@ -243,6 +323,8 @@
         return;
       }
 
+      var eventId = newEventId();
+      var attr = attribution();
       var payload = {
         name: form.elements.name.value.trim(),
         email: form.elements.email.value.trim(),
@@ -253,7 +335,12 @@
         source_page: window.location.pathname,
         // passed through so the endpoint can enforce the trap too, for anything
         // that posts to it directly rather than through this form
-        company: (form.elements.company && form.elements.company.value) || ""
+        company: (form.elements.company && form.elements.company.value) || "",
+        // the same id goes to the browser Lead below and to the server's
+        // Conversions API call, which only runs when the pixel may run here
+        event_id: eventId,
+        meta_consent: window.HST_META === true,
+        attribution: attr
       };   // created_at is set by the database, not the client
 
       submit.disabled = true;
@@ -261,6 +348,18 @@
       if (submit.querySelector("span")) submit.querySelector("span").textContent = "Sending…";
 
       send(payload).then(function () {
+        // Conversions fire only once the enquiry is safely recorded. Neither
+        // carries the name, email, phone or message.
+        metaTrack("Lead", {
+          content_name: "Website enquiry",
+          content_category: payload.service || "Not specified"
+        }, eventId);
+        gaEvent("generate_lead", {
+          lead_source: (attr && attr.utm_source) || "direct",
+          lead_service: payload.service || "not specified",
+          lead_budget: payload.budget || "not specified",
+          form_page: window.location.pathname
+        });
         form.reset();
         status.textContent = "Thank you. Your enquiry has reached the studio and we will be in touch.";
         status.classList.add("is-ok");

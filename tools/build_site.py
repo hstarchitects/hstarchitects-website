@@ -356,7 +356,8 @@ def build_service(s):
            "speakable": {"@type": "SpeakableSpecification", "cssSelector": ["h1", ".lede"]}}]
 
     html_out = head(title=s["seo_title"], meta=s["meta"], url=s["url"], jsonld=ld,
-                    image=og_url(s["hero_img"])) + header("services") + drawer("services") + f'''
+                    image=og_url(s["hero_img"]),
+                    pixel_view={"content_name": s["title"], "content_category": "Service"}) + header("services") + drawer("services") + f'''
 <main id="main">
 <section class="page-head">
   <div class="wrap">
@@ -558,7 +559,8 @@ def build_project(p, prev_p, next_p):
     if next_p: nav_links += f'<a class="link-arrow" href="/projects/{next_p["slug"]}/"><span>{esc(next_p["title"])}</span>{icon("arrow-r")}</a>'
 
     html_out = head(title=title, meta=meta, url=url, jsonld=ld,
-                    image=og_url(p["img"])) + header("projects") + drawer("projects") + f'''
+                    image=og_url(p["img"]),
+                    pixel_view={"content_name": p["title"], "content_category": p["cat"]}) + header("projects") + drawer("projects") + f'''
 <main id="main">
 <section class="page-head">
   <div class="wrap">
@@ -880,8 +882,8 @@ def build_contact():
           <button class="btn btn--accent btn--lg" type="submit" style="justify-self:start">
             <span>Send enquiry</span><span class="arrow">{icon("arrow")}</span>
           </button>
-          <p class="form__note">By sending this you agree that we may contact you about your project. We do not share your
-            details with anyone else.</p>
+          <p class="form__note">We use your details to reply about your project. How we handle them, including the
+            measurement tools on this site, is set out in our <a href="/privacy/">privacy notice</a>.</p>
         </form>
       </div>
 
@@ -942,6 +944,70 @@ def build_contact():
 # ===========================================================================
 # 404
 # ===========================================================================
+def build_privacy():
+    """Privacy notice. Meta's Business Tools Terms require one wherever the pixel
+    runs, and the enquiry form links here. It describes only what the site
+    actually does; nothing here is boilerplate for things the site does not do."""
+    trail = [("Home", "/"), ("Privacy", "/privacy/")]
+    updated = "19 September 2026"
+    html_out = head(title="Privacy notice | HST Architects",
+                    meta="How HST Architects handles the details you send through this website, and the measurement tools it uses.",
+                    url="/privacy/") + header("") + drawer("") + f'''
+<main id="main">
+<section class="page-head">
+  <div class="wrap wrap-narrow">
+    {breadcrumbs(trail)}
+    <span class="eyebrow">Privacy</span>
+    <h1 class="h1">Privacy notice</h1>
+    <p class="lede">What happens to the details you send us, and what this website measures. Last updated {updated}.</p>
+  </div>
+</section>
+
+<section class="section-sm">
+  <div class="wrap wrap-narrow prose">
+    <h2 class="h3">Who we are</h2>
+    <p>This website is run by {esc(SITE["name"])}, part of {esc(SITE["legal"])}, {esc(SITE["address_line"])},
+      {esc(SITE["address_locality"])}, Dubai, United Arab Emirates. Questions about this notice go to
+      <a href="mailto:{esc(SITE["email"])}">{esc(SITE["email"])}</a>.</p>
+
+    <h2 class="h3">When you send an enquiry</h2>
+    <p>The form asks for your name, email address and project details, and optionally your phone number, the
+      service you need and an indicative budget. We also record which page of the site you sent it from and, if you
+      arrived from one of our adverts, the campaign that brought you.</p>
+    <p>Your enquiry is stored in our database, hosted by Supabase, and a copy is emailed to the studio inbox, hosted by
+      Google. We use it to reply to you about your project and for our own business records. We do not sell it.</p>
+
+    <h2 class="h3">What this website measures</h2>
+    <p><strong>Google Analytics</strong> counts visits and which pages are read, using cookies. For visitors in the
+      European Economic Area, the United Kingdom and Switzerland it runs without cookies unless you agree to them.</p>
+    <p><strong>Meta Pixel and Conversions API</strong> tell Meta, the owner of Facebook and Instagram, which pages are
+      visited and when an enquiry is sent, so we can see which of our adverts work and show them to people likely to be
+      interested. When you send an enquiry, a scrambled (hashed) copy of your email address, phone number and name is
+      sent to Meta so it can match the enquiry to an advert. Your message and your budget are never sent. None of this
+      runs on devices set to a European time zone, and our server checks the visitor&rsquo;s country again before it
+      sends anything.</p>
+    <p><strong>Vercel Web Analytics and Speed Insights</strong> count visits and measure how fast pages load. They use no
+      cookies and do not identify you.</p>
+
+    <h2 class="h3">Your choices</h2>
+    <p>You can block or delete cookies in your browser settings. You can opt out of Google Analytics with
+      <a href="https://tools.google.com/dlpage/gaoptout" rel="noopener">Google&rsquo;s opt-out add-on</a>, and control how
+      Meta uses information for advertising in your
+      <a href="https://www.facebook.com/adpreferences/ad_settings" rel="noopener">Meta ad preferences</a>.</p>
+
+    <h2 class="h3">Your details, your rights</h2>
+    <p>You can ask us for a copy of the details we hold about you, ask us to correct them, or ask us to delete them, by
+      emailing <a href="mailto:{esc(SITE["email"])}">{esc(SITE["email"])}</a>. We keep enquiries only as long as we
+      need them to deal with your project and to keep proper business records.</p>
+
+    <h2 class="h3">Changes</h2>
+    <p>If what this website does with your details changes, this page changes with it, and the date at the top moves.</p>
+  </div>
+</section>
+</main>''' + footer() + tail()
+    write("privacy/index.html", html_out, url="/privacy/", prio="0.2", freq="yearly")
+
+
 def build_404():
     html_out = head(title="Page not found | HST Architects",
                     meta="That page is not here. Browse our Dubai interior design, renovation and landscaping work instead.",
@@ -1077,7 +1143,21 @@ and build under one contract: interior design, renovation and fit-out, and lands
         "$schema": "https://openapi.vercel.sh/vercel.json",
         "cleanUrls": True,
         "trailingSlash": True,
+        # Keeps the Free-plan Supabase project from pausing (see api/keepalive.js).
+        # The trailing slash is required: trailingSlash would 308 "/api/keepalive"
+        # and cron calls do not follow redirects. Hobby runs each at most daily,
+        # somewhere inside the hour, so two spread-out jobs.
+        "crons": [
+            {"path": "/api/keepalive/", "schedule": "17 3 * * *"},
+            {"path": "/api/keepalive/", "schedule": "17 15 * * *"},
+        ],
         "headers": [
+            # The production *.vercel.app hosts serve a full copy of the site.
+            # Keep them out of search so hstarchitects.com is the only one indexed.
+            # A header rather than a redirect, so POSTs to /api/* still work there.
+            {"source": "/(.*)",
+             "has": [{"type": "host", "value": r".*\.vercel\.app"}],
+             "headers": [{"key": "X-Robots-Tag", "value": "noindex"}]},
             # Images are content-stable: a new photograph gets a new slug.
             {"source": "/assets/img/(.*)",
              "headers": [{"key": "Cache-Control", "value": "public, max-age=31536000, immutable"}]},
@@ -1166,6 +1246,7 @@ def main():
         build_project(p, PROJECTS[i - 1] if i else None, PROJECTS[i + 1] if i + 1 < len(PROJECTS) else None)
     build_about()
     build_contact()
+    build_privacy()
     build_404()
     build_static()
     prune_orphans()

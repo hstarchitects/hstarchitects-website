@@ -3,10 +3,31 @@
   "cleanUrls": true,
   "trailingSlash": true,
   "crons": [
-    { "path": "/api/keepalive/", "schedule": "17 3 * * *" },
-    { "path": "/api/keepalive/", "schedule": "17 15 * * *" }
+    {
+      "path": "/api/keepalive/",
+      "schedule": "17 3 * * *"
+    },
+    {
+      "path": "/api/keepalive/",
+      "schedule": "17 15 * * *"
+    }
   ],
   "headers": [
+    {
+      "source": "/(.*)",
+      "has": [
+        {
+          "type": "host",
+          "value": ".*\\.vercel\\.app"
+        }
+      ],
+      "headers": [
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex"
+        }
+      ]
+    },
     {
       "source": "/assets/img/(.*)",
       "headers": [
