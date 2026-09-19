@@ -62,6 +62,11 @@ SITE = {
     # Google recommends, because vercel.json sets cleanUrls, which 308-redirects
     # /<token>.html and Google does not follow redirects when it fetches that file.
     # Removing this un-verifies the property, so leave it in place.
+    # Meta Business domain verification for hstarchitects.com, portfolio
+    # "HST Architects Decoration Design". Meta tag rather than DNS so it does not
+    # depend on the registrar. Removing it un-verifies the domain, which stops the
+    # business configuring web events for ads and editing link previews.
+    "facebook_domain_verification": "olbi878o4jb0uxvxrpkpdematubyqd",
     "google_site_verification": "a3QYZmgKMLe_y-VVLSbVf4CQhixq44gdcIWkj5sP12I",
     "socials": {
         "instagram": "https://www.instagram.com/hst.arch",

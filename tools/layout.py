@@ -180,6 +180,7 @@ def head(*, title, meta, url, image=None, jsonld=None, robots=None, prototype=Fa
 <meta name="theme-color" content="#F1EDE4">
 <meta name="author" content="{esc(SITE['name'])}">
 {f'<meta name="google-site-verification" content="{esc(SITE["google_site_verification"])}">' if SITE.get("google_site_verification") else ""}
+{f'<meta name="facebook-domain-verification" content="{esc(SITE["facebook_domain_verification"])}">' if SITE.get("facebook_domain_verification") else ""}
 <meta name="geo.region" content="AE-DU">
 <meta name="geo.placename" content="Dubai">
 <meta name="geo.position" content="{SITE['geo']['lat']};{SITE['geo']['lng']}">
