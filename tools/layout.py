@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 """Shared HTML shell: head, header, drawer, footer, image + icon helpers."""
 import json, os, html
+import urllib.parse
 from content import SITE, NAV, SERVICES
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -225,7 +226,7 @@ def meta_pixel(view=None):
     return META_SNIPPET % {"id": pid, "host": SITE["domain"].replace("https://", ""), "view": extra}
 
 
-def head(*, title, meta, url, image=None, jsonld=None, robots=None, prototype=False, pixel_view=None):
+def head(*, title, meta, url, image=None, jsonld=None, robots=None, prototype=False, pixel_view=None, body_class=""):
     canonical = SITE["domain"] + url
     og_img = image or og_url("hero/hero-pool-dusk")
     robots_tag = robots or "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1"
@@ -275,7 +276,7 @@ def head(*, title, meta, url, image=None, jsonld=None, robots=None, prototype=Fa
 {meta_pixel(pixel_view)}
 {vercel_insights()}
 </head>
-<body>
+<body{f' class="{body_class}"' if body_class else ""}>
 <a class="skip-link" href="#main">Skip to content</a>'''
 
 # ---------------------------------------------------------------- header
@@ -552,3 +553,82 @@ def website_ld():
         "inLanguage": "en-AE",
         "publisher": {"@id": SITE["domain"] + "/#organization"},
     }
+
+
+# ---------------------------------------------------------------- ads landing
+# The paid-traffic pages (/consultation/ and its thanks page) strip the site nav
+# and the full footer: every link to /services/ or /projects/ is an exit from the
+# one page that converts. What stays is identity, the phone and WhatsApp, the
+# privacy notice, and one plain link back to the main site.
+
+WA_DEFAULT = ("Hello HST Architects, I would like to arrange a consultation. "
+              "(Sent from hstarchitects.com/consultation)")
+
+
+def wa_href(text=WA_DEFAULT):
+    """wa.me link with a prefilled message. The suffix is the only attribution a
+    WhatsApp chat carries, so the studio knows it came from the ads page."""
+    return "https://wa.me/" + SITE["phone_link"].lstrip("+") + "?text=" + urllib.parse.quote(text)
+
+
+def lp_header():
+    return f'''<header class="lp-bar">
+  <div class="wrap wrap-wide">
+    <div class="lp-bar__in">
+      <span class="lp-bar__brand">{brand_logo(height=40)}</span>
+      <div class="lp-bar__acts">
+        <span class="lp-bar__hours small muted">{icon("clock")}<span>{esc(SITE["hours_display"])}</span></span>
+        <a class="lp-bar__tel" href="tel:{SITE["phone_link"]}" data-contact="phone" data-loc="header"
+           aria-label="Call HST Architects on {esc(SITE["phone_display"])}">{icon("phone")}<span>{esc(SITE["phone_display"])}</span></a>
+        <a class="btn btn--accent lp-bar__wa" href="{wa_href()}" target="_blank" rel="noopener noreferrer nofollow"
+           data-contact="whatsapp" data-loc="header"><span>WhatsApp</span></a>
+      </div>
+    </div>
+  </div>
+</header>'''
+
+
+def lp_footer():
+    return f'''<footer class="lp-foot">
+  <div class="wrap wrap-wide">
+    <div class="lp-foot__grid">
+      <div>
+        {brand_logo(height=56, on_dark=True)}
+        <p class="lp-foot__who">{esc(SITE["name"])}, part of {esc(SITE["legal"])}</p>
+      </div>
+      <address class="lp-foot__col">
+        {esc(SITE["address_line"])}<br>{esc(SITE["address_locality"])}, United Arab Emirates<br>
+        <span class="lp-foot__hours">{esc(SITE["hours_display"])}</span>
+      </address>
+      <div class="lp-foot__col">
+        <a href="tel:{SITE["phone_link"]}" data-contact="phone" data-loc="footer">{esc(SITE["phone_display"])}</a>
+        <a href="tel:{SITE["landline_link"]}" data-contact="phone" data-loc="footer">{esc(SITE["landline_display"])}</a>
+        <a href="mailto:{esc(SITE["email"])}" data-contact="email" data-loc="footer">{esc(SITE["email"])}</a>
+      </div>
+    </div>
+    <div class="lp-foot__bottom">
+      <span>&copy; <span data-year>2026</span> {esc(SITE["name"])}, part of {esc(SITE["legal"])}.</span>
+      <span><a href="/privacy/">Privacy notice</a> &middot; <a href="/">Visit hstarchitects.com</a></span>
+    </div>
+  </div>
+</footer>'''
+
+
+def lp_dock():
+    """Mobile-only sticky action bar. Hidden until the hero actions scroll away,
+    and while the form is on screen or being typed into (see site.js)."""
+    return f'''<nav class="lp-dock" aria-label="Quick contact" data-dock>
+  <a class="btn btn--ghost" href="tel:{SITE["phone_link"]}" data-contact="phone" data-loc="dock">{icon("phone")}<span>Call</span></a>
+  <a class="btn btn--ghost" href="{wa_href()}" target="_blank" rel="noopener noreferrer nofollow"
+     data-contact="whatsapp" data-loc="dock">{icon("whatsapp")}<span>WhatsApp</span></a>
+  <a class="btn btn--accent" href="#enquire" data-dock-cta><span>Consultation</span></a>
+</nav>'''
+
+
+def lp_wa_fab():
+    """The site's floating WhatsApp button, without back-to-top; desktop only on
+    the landing page, where the dock replaces it on phones."""
+    return f'''<a class="wa-fab" href="{wa_href()}" target="_blank" rel="noopener noreferrer nofollow"
+   aria-label="Message HST Architects on WhatsApp" data-contact="whatsapp" data-loc="fab">
+  {icon("whatsapp")}<span class="wa-fab__label">WhatsApp</span>
+</a>'''

@@ -148,7 +148,8 @@ function sendMail({ user, pass, to, replyTo, subject, text }) {
     const message = [
       "From: " + encodeHeader("HST Architects website") + " <" + user + ">",
       "To: <" + to + ">",
-      "Reply-To: <" + headerSafe(replyTo) + ">",
+      // omitted for a phone-only lead rather than printed as "<null>"
+      replyTo ? "Reply-To: <" + headerSafe(replyTo) + ">" : null,
       "Subject: " + encodeHeader(subject),
       "MIME-Version: 1.0",
       'Content-Type: text/plain; charset="utf-8"',
@@ -156,7 +157,7 @@ function sendMail({ user, pass, to, replyTo, subject, text }) {
       "",
       // base64 sidesteps dot-stuffing and the 998-character line limit at once
       Buffer.from(text, "utf8").toString("base64").replace(/(.{76})/g, "$1" + CRLF),
-    ].join(CRLF);
+    ].filter(function (h) { return h !== null; }).join(CRLF);
 
     (async () => {
       try {
@@ -366,8 +367,15 @@ module.exports = async (req, res) => {
   };
 
   if (!row.name) return res.status(400).json({ error: "A name is required." });
-  if (!row.email || !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(row.email)) {
-    return res.status(400).json({ error: "A valid email address is required." });
+  // The contact page asks for an email; the ads landing page asks for a phone
+  // number first and makes email optional. Either way there must be one way
+  // back to the person, and an email that is given must look like one.
+  if (row.email && !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(row.email)) {
+    return res.status(400).json({ error: "Please check the email address, or leave it blank." });
+  }
+  const phoneDigits = (row.phone || "").replace(/\D/g, "");
+  if (!row.email && (phoneDigits.length < 8 || phoneDigits.length > 15)) {
+    return res.status(400).json({ error: "Please leave a phone number or an email address." });
   }
   if (!row.message || row.message.length < 10) {
     return res.status(400).json({ error: "Please say a little about the project." });
@@ -419,8 +427,9 @@ module.exports = async (req, res) => {
   if (user && pass) {
     const lines = [
       "Name:    " + row.name,
-      "Email:   " + row.email,
+      row.email ? "Email:   " + row.email : "Email:   (not given)",
       row.phone ? "Phone:   " + row.phone : null,
+      phoneDigits.length >= 8 ? "WhatsApp: https://wa.me/" + phoneDigits : null,
       row.service ? "Service: " + row.service : null,
       row.budget ? "Budget:  " + row.budget : null,
       row.source_page ? "Page:    https://hstarchitects.com" + row.source_page : null,
@@ -439,8 +448,8 @@ module.exports = async (req, res) => {
         user: user,
         pass: pass,
         to: MAIL_TO,
-        replyTo: row.email,
-        subject: "Website enquiry from " + row.name,
+        replyTo: row.email,   // may be null for a phone-only lead; see sendMail
+        subject: (row.source_page === "/consultation/" ? "Consultation request from " : "Website enquiry from ") + row.name,
         text: lines.join("\n"),
       });
       emailed = true;

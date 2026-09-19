@@ -376,12 +376,14 @@
         status.scrollIntoView({ block: "nearest", behavior: reduced ? "auto" : "smooth" });
       });
     });
+  }
 
-    // The endpoint stores the enquiry AND emails the studio, so it is the path
-    // that actually reaches a human. If it is unreachable we still write to the
-    // database directly, which is what the site did before it existed: the
-    // enquiry is captured either way, it just may wait for someone to look.
-    function send(payload) {
+  /* ---------- enquiry transport (shared by both forms) ------------------- */
+  // The endpoint stores the enquiry AND emails the studio, so it is the path
+  // that actually reaches a human. If it is unreachable we still write to the
+  // database directly, which is what the site did before it existed: the
+  // enquiry is captured either way, it just may wait for someone to look.
+  function send(payload) {
       // trailing slash on purpose: vercel.json sets trailingSlash, so the bare
       // path answers 308 and every submission would pay for an extra round trip
       return fetch("/api/enquiry/", {
@@ -428,6 +430,190 @@
       }).then(function (r) {
         if (!r.ok) return r.text().then(function (t) { throw new Error("HTTP " + r.status + " " + t); });
       });
+    }
+
+  /* ---------- consultation landing (/consultation/) ---------------------- */
+  // Phone-first: name and a mobile number are all it asks for. Success goes to
+  // /consultation/thanks/, which fires the conversion once from a one-time
+  // token, so a reload or a shared thanks link never double-counts.
+  function normPhone(v) {
+    var s = String(v || "").trim().replace(/[\s().-]/g, "");
+    if (/^00/.test(s)) s = "+" + s.slice(2);
+    else if (/^971\d{8,9}$/.test(s)) s = "+" + s;
+    else if (/^0\d{8,9}$/.test(s)) s = "+971" + s.slice(1);
+    else if (/^5\d{8}$/.test(s)) s = "+971" + s;
+    var d = s.replace(/\D/g, "");
+    if (d.length < 8 || d.length > 15) return null;
+    return (s.charAt(0) === "+" ? "+" : "") + d;
+  }
+
+  var lp = doc.getElementById("consultation-form");
+  if (lp) {
+    var lpStatus = lp.querySelector(".form__status");
+    var lpSubmit = lp.querySelector('[type="submit"]');
+    var more = lp.querySelector("[data-form-more]");
+    var WA_BASE = "Hello HST Architects, I would like to arrange a consultation";
+    var WA_TAIL = ". (Sent from hstarchitects.com/consultation)";
+
+    // The optional fields stay folded on every screen. Opened by default on a
+    // laptop they pushed the submit button below the fold, and fewer visible
+    // fields is what gets a paid visitor to finish.
+
+    function lpFail(field, msg) {
+      var w = field.closest(".field");
+      w.classList.add("field--error");
+      var e = w.querySelector(".field__err");
+      if (e) { if (msg) e.textContent = msg; field.setAttribute("aria-describedby", e.id); }
+      field.setAttribute("aria-invalid", "true");
+    }
+    lp.querySelectorAll("input, textarea").forEach(function (f) {
+      f.addEventListener("input", function () {
+        var w = f.closest(".field");
+        if (w) w.classList.remove("field--error");
+        f.removeAttribute("aria-invalid");
+      });
+    });
+
+    // choosing a service also tailors every WhatsApp link on the page
+    function setService(title) {
+      lp.querySelectorAll('input[name="service"]').forEach(function (r) { r.checked = (r.value === title); });
+      var text = WA_BASE + (title && title !== "Multiple / not sure" ? " about " + title : "") + WA_TAIL;
+      doc.querySelectorAll('a[href^="https://wa.me/"]').forEach(function (a) {
+        a.href = a.href.split("?")[0] + "?text=" + encodeURIComponent(text);
+      });
+    }
+    lp.addEventListener("change", function (e) {
+      if (e.target.name === "service") setService(e.target.value);
+    });
+    // ?service=<key> preselects, so an ad group per discipline lands ready
+    try {
+      var key = new URL(window.location.href).searchParams.get("service");
+      var preSvc = key && lp.querySelector('input[name="service"][data-key="' + key.replace(/[^a-z-]/g, "") + '"]');
+      if (preSvc) setService(preSvc.value);
+    } catch (e) {}
+
+    function toForm() {
+      var card = doc.getElementById("enquire");
+      if (card) card.scrollIntoView({ block: "start", behavior: reduced ? "auto" : "smooth" });
+      var n = doc.getElementById("lp-name");
+      if (n) setTimeout(function () { n.focus({ preventScroll: true }); }, reduced ? 0 : 450);
+    }
+    doc.querySelectorAll("[data-focus-form], [data-dock-cta]").forEach(function (a) {
+      a.addEventListener("click", function (e) { e.preventDefault(); toForm(); });
+    });
+    doc.querySelectorAll("[data-pick-service]").forEach(function (b) {
+      b.addEventListener("click", function () { setService(b.getAttribute("data-pick-service")); toForm(); });
+    });
+
+    lp.addEventListener("submit", function (e) {
+      e.preventDefault();
+      lpStatus.className = "form__status";
+      lpStatus.textContent = "";
+      if (lp.elements.company && lp.elements.company.value) return; // honeypot
+
+      var name = lp.elements.name, phone = lp.elements.phone, email = lp.elements.email;
+      var ok = true;
+      if (!name.value.trim()) { lpFail(name, "Please tell us your name."); ok = false; }
+      var ph = normPhone(phone.value);
+      if (!ph) { lpFail(phone, "Please enter a mobile or WhatsApp number we can reach you on."); ok = false; }
+      var em = email.value.trim();
+      if (em && !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(em)) {
+        if (more) more.open = true;
+        lpFail(email, "Please check the email address, or leave it blank."); ok = false;
+      }
+      if (!ok) {
+        lpStatus.textContent = "Please check the highlighted fields.";
+        lpStatus.classList.add("is-err");
+        var bad = lp.querySelector(".field--error input, .field--error textarea");
+        if (bad) bad.focus();
+        return;
+      }
+
+      var svcInput = lp.querySelector('input[name="service"]:checked');
+      var svc = svcInput ? svcInput.value : "";
+      var note = lp.elements.message.value.trim();
+      // the table needs a message of ten characters or more
+      var base = "Consultation request from the landing page" + (svc ? " (" + svc + ")" : "") + ".";
+      var message = note.length >= 10 ? note : (note ? base + " Note: " + note : base);
+      var eventId = newEventId();
+
+      var payload = {
+        name: name.value.trim(),
+        email: em || null,
+        phone: ph,
+        service: svc || null,
+        budget: null,
+        message: message,
+        source_page: window.location.pathname,
+        company: (lp.elements.company && lp.elements.company.value) || "",
+        event_id: eventId,
+        meta_consent: window.HST_META === true,
+        attribution: attribution()
+      };
+
+      lpSubmit.disabled = true;
+      var label = lpSubmit.querySelector("span");
+      var original = label ? label.textContent : "";
+      if (label) label.textContent = "Sending…";
+
+      send(payload).then(function () {
+        // a one-time token for the thanks page, which fires the conversion
+        var lead = { eid: eventId, service: svc, first: (payload.name.split(/\s+/)[0] || "").slice(0, 40) };
+        var stored = false;
+        try { sessionStorage.setItem("hst_lead", JSON.stringify(lead)); stored = true; } catch (err) {}
+        if (!stored) fireLead(lead);
+        window.location.assign("/consultation/thanks/");
+      }).catch(function (err) {
+        console.error("[hst] consultation request failed", err);
+        if (err && err.final) {
+          lpStatus.textContent = err.message;
+        } else {
+          lpStatus.innerHTML = "We could not send that from the site. Please call " +
+            '<a href="tel:+971503999314">+971 50 399 9314</a> or message us on WhatsApp instead.';
+        }
+        lpStatus.classList.add("is-err");
+        lpSubmit.disabled = false;
+        if (label) label.textContent = original;
+      });
+    });
+  }
+
+  function fireLead(l) {
+    metaTrack("Lead", { content_name: "Consultation request", content_category: l.service || "Not specified" }, l.eid);
+    var a = attribution();
+    gaEvent("generate_lead", {
+      lead_source: (a && a.utm_source) || "direct",
+      lead_service: l.service || "not specified",
+      form_page: "/consultation/"
+    });
+  }
+
+  // thanks page: fire once, then forget the token
+  if (doc.body.classList.contains("lp--thanks")) {
+    var lead = null;
+    try { lead = JSON.parse(sessionStorage.getItem("hst_lead") || "null"); sessionStorage.removeItem("hst_lead"); } catch (e) {}
+    if (lead) {
+      // the pixel may still be loading; fbq queues calls until it arrives
+      fireLead(lead);
+      var slot = doc.querySelector("[data-lead-name]");
+      if (slot && lead.first) slot.textContent = ", " + lead.first;
+    }
+  }
+
+  // mobile dock: out of the way until the hero actions scroll off, and away
+  // again while the form is on screen or being typed into
+  var dock = doc.querySelector("[data-dock]");
+  var heroCta = doc.querySelector("[data-hero-cta]");
+  var formCard = doc.getElementById("enquire");
+  if (dock && heroCta && "IntersectionObserver" in window) {
+    var heroGone = false, formSeen = false, typing = false;
+    var paint = function () { dock.classList.toggle("is-in", heroGone && !formSeen && !typing); };
+    new IntersectionObserver(function (en) { heroGone = !en[0].isIntersecting; paint(); }).observe(heroCta);
+    if (formCard) new IntersectionObserver(function (en) { formSeen = en[0].intersectionRatio >= 0.25; paint(); },
+      { threshold: [0, 0.25, 0.5] }).observe(formCard);
+    if (lp) {
+      lp.addEventListener("focusin", function () { typing = true; paint(); });
+      lp.addEventListener("focusout", function () { typing = false; paint(); });
     }
   }
 

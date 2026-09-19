@@ -8,7 +8,8 @@ from content import (SITE, NAV, SERVICES, PROJECTS, PROCESS, SECTORS,
 import layout as L
 from layout import (esc, img, img_url, og_url, icon, plan_deco, btn, link_arrow, arrow_badge, head, header,
                     drawer, footer, tail, breadcrumbs, breadcrumb_ld, faq_block, faq_ld,
-                    cta_band, related_block, org_ld, website_ld, ROOT)
+                    cta_band, related_block, org_ld, website_ld, ROOT,
+                    wa_href, lp_header, lp_footer, lp_dock, lp_wa_fab)
 
 TODAY = datetime.date.today().isoformat()
 URLS = []   # (loc, priority, changefreq)
@@ -944,6 +945,253 @@ def build_contact():
 # ===========================================================================
 # 404
 # ===========================================================================
+# ===========================================================================
+# Ads landing page: /consultation/ and /consultation/thanks/
+# ===========================================================================
+# Built for paid Meta and Google traffic. Both pages are noindex and written
+# without url=, so they never reach sitemap.xml, llms.txt or IndexNow; nothing on
+# the site links to them. Every fact on them comes from content.py: counts are
+# computed here, never typed, and there is no "free", no reply-time promise, no
+# price, duration, rating or testimonial, because none of those is sourced.
+
+LP_PROJECTS = ["emirates-hills-villa", "damac-hills-landscape", "springfield-office",
+               "business-bay-private-office", "al-wasl-gym", "deira-private-office"]
+
+
+def _project(slug):
+    # next() rather than a filter, so a renamed slug fails the build loudly
+    return next(p for p in PROJECTS if p["slug"] == slug)
+
+
+def lp_facts():
+    return [
+        (str(len(PROJECTS)), "Projects in this portfolio"),
+        (str(len(SERVICES)), "Disciplines in-house"),
+        (str(len(SECTORS)), "Sectors in the portfolio"),
+        (str(sum(a in SITE["areas"] for a in ("Dubai", "Abu Dhabi"))), "Emirates: Dubai and Abu Dhabi"),
+    ]
+
+
+def lp_form():
+    chips = "".join(
+        f'<label class="chip"><input type="radio" name="service" value="{esc(v)}"'
+        f'{f" data-key={chr(34)}{k}{chr(34)}" if k else ""}><span>{esc(lbl)}</span></label>'
+        for lbl, v, k in [(s["title"], s["title"], s["key"]) for s in SERVICES] +
+                        [("Not sure yet", "Multiple / not sure", "")])
+    return f'''<div class="lp-form-card" id="enquire">
+  <h2 class="h3">Tell us about the space</h2>
+  <p class="small muted lp-form-card__intro">We arrange a site visit and follow it with a written scope and fee proposal.</p>
+  <form id="consultation-form" class="form" novalidate data-enquiry="consultation">
+    <div class="form__row">
+      <div class="field">
+        <label for="lp-name">Your name <span class="req">*</span></label>
+        <input id="lp-name" name="name" type="text" autocomplete="name" enterkeyhint="next" maxlength="120" placeholder="Ali Hassan" required>
+        <p class="field__err" id="lp-name-err">Please tell us your name.</p>
+      </div>
+      <div class="field">
+        <label for="lp-phone">Mobile or WhatsApp <span class="req">*</span></label>
+        <input id="lp-phone" name="phone" type="tel" inputmode="tel" autocomplete="tel" enterkeyhint="next" maxlength="40" placeholder="+971 50 000 0000" required>
+        <p class="field__err" id="lp-phone-err">Please enter a mobile or WhatsApp number we can reach you on.</p>
+      </div>
+    </div>
+    <fieldset class="field chips-field">
+      <legend>What is the project?</legend>
+      <div class="chips">{chips}</div>
+    </fieldset>
+    <details class="form-more" data-form-more>
+      <summary>Add an email or a note (optional)</summary>
+      <div class="form-more__body">
+        <div class="field">
+          <label for="lp-email">Email (optional)</label>
+          <input id="lp-email" name="email" type="email" inputmode="email" autocomplete="email" maxlength="160" placeholder="you@company.ae">
+          <p class="field__err" id="lp-email-err">Please check the email address, or leave it blank.</p>
+        </div>
+        <div class="field">
+          <label for="lp-message">Anything we should know? (optional)</label>
+          <textarea id="lp-message" name="message" rows="3" maxlength="4000" enterkeyhint="send"
+            placeholder="For example: a 4-bedroom villa in Dubai Hills, ground floor and garden."></textarea>
+        </div>
+      </div>
+    </details>
+    <div class="hp" aria-hidden="true"><label>Company <input name="company" tabindex="-1" autocomplete="off"></label></div>
+    <button class="btn btn--accent btn--lg lp-submit" type="submit">
+      <span>Request a consultation</span><span class="arrow">{icon("arrow")}</span>
+    </button>
+    <p class="form__status" role="status" aria-live="polite"></p>
+    <p class="form__note">Prefer to talk? Call <a href="tel:{SITE["phone_link"]}" data-contact="phone" data-loc="form">{esc(SITE["phone_display"])}</a>
+      or <a href="{wa_href()}" target="_blank" rel="noopener noreferrer nofollow" data-contact="whatsapp" data-loc="form">message us on WhatsApp</a>.</p>
+    <p class="form__note">We use these details to contact you about your project. <a href="/privacy/">Privacy notice</a>.</p>
+  </form>
+</div>'''
+
+
+def build_consultation():
+    url = "/consultation/"
+    dh = _project("dubai-hills-landscape")
+    work = [_project(s) for s in LP_PROJECTS]
+    faqs = [HOME_FAQS[2], svc("renovation")["faqs"][1], HOME_FAQS[1],
+            svc("interior-design")["faqs"][1], HOME_FAQS[0]]
+    facts = "".join(
+        f'<div class="hero-stats__item"><div class="hero-stats__v">{esc(v)}</div>'
+        f'<div class="hero-stats__l">{esc(l)}</div></div>' for v, l in lp_facts())
+    why = "".join(
+        f'<div class="glass lp-why__card"><span class="lp-why__ic">{icon("check")}</span>'
+        f'<h3 class="h4">{esc(w["t"])}</h3><p class="small muted">{esc(w["d"])}</p></div>' for w in WHY_US)
+    svc_cards = "".join(
+        f'''<div class="lp-svc">
+  <span class="lp-svc__n">{esc(s["num"])}</span>
+  <h3 class="h4">{esc(s["title"])}</h3>
+  <p class="small muted">{esc(s["short"])}</p>
+  <ul class="lp-svc__list">{"".join(f"<li>{esc(c['t'])}</li>" for c in s["capabilities"][:3])}</ul>
+  <button class="btn btn--ghost" type="button" data-pick-service="{esc(s["title"])}"><span>Choose this service</span></button>
+</div>''' for s in SERVICES)
+    tiles = "".join(
+        f'''<div class="tile tile--static">
+  {img(p["img"], p["alt"], sizes="(max-width: 900px) 78vw, 410px")}
+  <div class="tile__label"><div><h3>{esc(p["title"])}</h3>
+  <p>{esc(p["cat"])} &middot; {esc(p["loc"])}{f" &middot; {esc(p['year'])}" if p.get("year") else ""}</p></div></div>
+</div>''' for p in work)
+    steps = "".join(
+        f'<div class="step"><div class="step__n">{esc(s["n"])}</div>'
+        f'<h3 class="step__t">{esc(s["t"])}</h3><p class="step__d">{esc(s["d"])}</p></div>' for s in PROCESS)
+    before_key = dh["gallery"][0][0] if isinstance(dh["gallery"][0], (list, tuple)) else dh["gallery"][0]
+    before_alt = dh["gallery"][0][1] if isinstance(dh["gallery"][0], (list, tuple)) else "The plot before works"
+
+    html_out = head(title="Book a Consultation | HST Architects, Dubai",
+                    meta="Interior design, renovation and landscaping in Dubai, designed and built by one team. "
+                         "Send the property details and we arrange a site visit.",
+                    url=url, image=og_url("hero/hero-office-skyline"),
+                    robots="noindex, follow", body_class="lp") + lp_header() + f'''
+<main id="main">
+
+<section class="lp-hero">
+  <div class="wrap wrap-wide">
+    <div class="lp-hero__frame">
+      <div class="lp-hero__media">{img("hero/hero-office-skyline",
+          "HST Architects designed office interior in Dubai with a chandelier and floor-to-ceiling city views",
+          sizes="(max-width: 900px) calc(100vw - 32px), min(1480px, 100vw)", priority=True)}</div>
+      <div class="lp-hero__body">
+        <span class="eyebrow">Interior &middot; Renovation &middot; Landscape</span>
+        <h1 class="lp-h1">Design and build <span class="lite">under one roof, in Dubai</span></h1>
+        <p class="lp-hero__sub">Interior design, renovation and landscaping for villas, apartments, offices, showrooms and
+          gardens. The people who draw the project are the people who deliver it.</p>
+        <div class="lp-hero__cta" data-hero-cta>
+          <a class="btn btn--accent btn--lg" href="#enquire" data-focus-form><span>Request a consultation</span><span class="arrow">{icon("arrow")}</span></a>
+          <a class="btn btn--light" href="{wa_href()}" target="_blank" rel="noopener noreferrer nofollow" data-contact="whatsapp" data-loc="hero">{icon("whatsapp")}<span>WhatsApp</span></a>
+          <a class="btn btn--light" href="tel:{SITE["phone_link"]}" data-contact="phone" data-loc="hero">{icon("phone")}<span>Call</span></a>
+        </div>
+        <p class="lp-hero__trust small">Part of {esc(SITE["legal"])}, a licensed UAE building maintenance and technical
+          services company. Studio at {esc(SITE["address_line"].split(",")[0])}, {esc(SITE["address_locality"])}.</p>
+        <div class="hero-stats lp-hero__facts">{facts}</div>
+      </div>
+      {lp_form()}
+    </div>
+  </div>
+</section>
+
+<section class="section" aria-labelledby="why-h">
+  <div class="wrap">
+    <div class="sec-head"><div class="sec-head__text">
+      <span class="eyebrow">Why HST</span>
+      <h2 class="h2" id="why-h">One team <span class="lite">from first sketch to final snag</span></h2>
+    </div></div>
+    <div class="hero-stats lp-facts-mobile">{facts}</div>
+    <div class="lp-why">{why}</div>
+  </div>
+</section>
+
+<section class="section-sm" aria-labelledby="ba-h">
+  <div class="wrap">
+    <div class="sec-head"><div class="sec-head__text">
+      <span class="eyebrow">Before and after</span>
+      <h2 class="h2" id="ba-h">From bare plot <span class="lite">to finished garden</span></h2>
+    </div></div>
+    <div class="lp-ba">
+      <figure>{img(before_key, before_alt, sizes="(max-width: 620px) calc(100vw - 32px), 46vw")}<span class="lp-ba__tag">Before</span></figure>
+      <figure>{img(dh["img"], dh["alt"], sizes="(max-width: 620px) calc(100vw - 32px), 46vw")}<span class="lp-ba__tag">After</span></figure>
+    </div>
+    <p class="small muted lp-ba__cap">{esc(dh["title"])}. {esc(dh["scope"])}.</p>
+  </div>
+</section>
+
+<section class="section" aria-labelledby="svc-h">
+  <div class="wrap">
+    <div class="sec-head"><div class="sec-head__text">
+      <span class="eyebrow">What we do</span>
+      <h2 class="h2" id="svc-h">Three disciplines, <span class="lite">one accountable team</span></h2>
+    </div></div>
+    <div class="lp-svcs">{svc_cards}</div>
+  </div>
+</section>
+
+<section class="section-sm" aria-labelledby="work-h">
+  <div class="wrap">
+    <div class="sec-head"><div class="sec-head__text">
+      <span class="eyebrow">Selected work</span>
+      <h2 class="h2" id="work-h">Delivered <span class="lite">across Dubai</span></h2>
+      <p class="lede">Offices, villa interiors, a gym and a villa garden from the portfolio.</p>
+    </div></div>
+    <div class="lp-work">{tiles}</div>
+  </div>
+</section>
+
+<section class="section" aria-labelledby="how-h">
+  <div class="wrap">
+    <div class="sec-head"><div class="sec-head__text">
+      <span class="eyebrow">How it works</span>
+      <h2 class="h2" id="how-h">From first visit <span class="lite">to final snag</span></h2>
+      <p class="lede">{esc(SERVICES[0]["process_note"])}</p>
+    </div></div>
+    <div class="steps">{steps}</div>
+  </div>
+</section>
+
+{faq_block(faqs, "Straight answers before you call")}
+
+<section class="section-sm">
+  <div class="wrap">
+    <div class="cta cta--plain">
+      <div class="cta__body">
+        <span class="eyebrow">Start here</span>
+        <h2 class="h2">Tell us about the space. <span class="lite">We will tell you what it needs.</span></h2>
+        <p class="lede">{esc(HOME_FAQS[3]["a"])}</p>
+        <div class="lp-cta__acts">
+          <a class="btn btn--light btn--lg" href="#enquire" data-focus-form><span>Request a consultation</span><span class="arrow">{icon("arrow")}</span></a>
+          <a class="btn btn--outline" href="{wa_href()}" target="_blank" rel="noopener noreferrer nofollow" data-contact="whatsapp" data-loc="cta">{icon("whatsapp")}<span>WhatsApp us</span></a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+</main>''' + lp_footer() + lp_dock() + tail()   # no floating WhatsApp: header and hero carry it, and it sat over the form
+    write("consultation/index.html", html_out)   # no url= : kept out of the sitemap
+
+
+def build_consultation_thanks():
+    html_out = head(title="Request received | HST Architects",
+                    meta="Your consultation request has reached HST Architects.",
+                    url="/consultation/thanks/", image=og_url("hero/hero-office-skyline"),
+                    robots="noindex, follow", body_class="lp lp--thanks") + lp_header() + f'''
+<main id="main">
+<section class="lp-thanks">
+  <div class="wrap wrap-narrow">
+    <span class="eyebrow">Request received</span>
+    <h1 class="lp-h1">Thank you<span data-lead-name></span>. <span class="lite">Your request has reached the studio.</span></h1>
+    <p class="lede">We will contact you on the number you gave us to arrange a site visit, then follow it with a written
+      scope and fee proposal.</p>
+    <p class="small muted">The studio is open {esc(SITE["hours_display"])}.</p>
+    <div class="lp-hero__cta lp-thanks__cta">
+      <a class="btn btn--accent" href="{wa_href()}" target="_blank" rel="noopener noreferrer nofollow" data-contact="whatsapp" data-loc="thanks">{icon("whatsapp")}<span>Message us on WhatsApp</span></a>
+      <a class="btn btn--ghost" href="tel:{SITE["phone_link"]}" data-contact="phone" data-loc="thanks">{icon("phone")}<span>Call {esc(SITE["phone_display"])}</span></a>
+    </div>
+    <p style="margin-top:2rem">{link_arrow("While you wait, browse the portfolio", "/projects/")}</p>
+  </div>
+</section>
+</main>''' + lp_footer() + tail()
+    write("consultation/thanks/index.html", html_out)
+
+
 def build_privacy():
     """Privacy notice. Meta's Business Tools Terms require one wherever the pixel
     runs, and the enquiry form links here. It describes only what the site
@@ -1155,6 +1403,10 @@ and build under one contract: interior design, renovation and fit-out, and lands
             # The production *.vercel.app hosts serve a full copy of the site.
             # Keep them out of search so hstarchitects.com is the only one indexed.
             # A header rather than a redirect, so POSTs to /api/* still work there.
+            # The ads landing page and its thanks page: noindex by header as well
+            # as by meta tag. They duplicate site copy and exist only for paid clicks.
+            {"source": "/consultation/(.*)",
+             "headers": [{"key": "X-Robots-Tag", "value": "noindex"}]},
             {"source": "/(.*)",
              "has": [{"type": "host", "value": r".*\.vercel\.app"}],
              "headers": [{"key": "X-Robots-Tag", "value": "noindex"}]},
@@ -1246,6 +1498,8 @@ def main():
         build_project(p, PROJECTS[i - 1] if i else None, PROJECTS[i + 1] if i + 1 < len(PROJECTS) else None)
     build_about()
     build_contact()
+    build_consultation()
+    build_consultation_thanks()
     build_privacy()
     build_404()
     build_static()
