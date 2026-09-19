@@ -5,3 +5,4 @@ source/
 .claude/
 *.md
 _*
+.github/

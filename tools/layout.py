@@ -152,6 +152,29 @@ gtag("js",new Date());gtag("config","%(id)s");
 })();</script>"""
 
 
+# Vercel Web Analytics and Speed Insights. Both are first-party (served by this
+# deployment under /_vercel/*) and cookieless, so they need no consent gate and
+# still count visitors whose GA analytics storage is denied. Same production-host
+# gate as GA: local previews would 404 on /_vercel/* and preview deployments would
+# spend the Hobby quotas (Web Analytics 50,000 events a month; Speed Insights
+# 10,000 events per rolling 30 days, team-wide, 3-6 events per page view). The
+# sample rate keeps Speed Insights under that ceiling at ad-campaign volumes.
+VERCEL_SNIPPET = """<script>(function(){
+if(location.hostname!=="%(host)s")return;
+window.va=window.va||function(){(window.vaq=window.vaq||[]).push(arguments);};
+window.si=window.si||function(){(window.siq=window.siq||[]).push(arguments);};
+var a=document.createElement("script");a.src="/_vercel/insights/script.js";document.head.appendChild(a);
+var s=document.createElement("script");s.src="/_vercel/speed-insights/script.js";s.setAttribute("data-sample-rate","%(rate)s");document.head.appendChild(s);
+})();</script>"""
+
+
+def vercel_insights():
+    if not SITE.get("vercel_insights"):
+        return ""
+    return VERCEL_SNIPPET % {"host": SITE["domain"].replace("https://", ""),
+                             "rate": SITE.get("speed_insights_sample_rate", 0.5)}
+
+
 def analytics():
     """The measurement tag, or nothing at all if no property is configured."""
     gid = SITE.get("ga4_id")
@@ -207,6 +230,7 @@ def head(*, title, meta, url, image=None, jsonld=None, robots=None, prototype=Fa
 <script>(function(){{var r=document.documentElement;r.className+=" js";try{{var t=localStorage.getItem("hst-theme")||(matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light");r.setAttribute("data-theme",t);}}catch(e){{}}}})();</script>
 {blocks}
 {analytics()}
+{vercel_insights()}
 </head>
 <body>
 <a class="skip-link" href="#main">Skip to content</a>'''

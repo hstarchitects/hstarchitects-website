@@ -53,6 +53,11 @@ SITE = {
     # Google Analytics 4 measurement ID. The tag is only injected on the live
     # host, so local builds and Vercel preview deployments never send events.
     "ga4_id": "G-1EGDSF9VXQ",
+    # Vercel Web Analytics + Speed Insights, first-party and cookieless.
+    "vercel_insights": True,
+    # Speed Insights free tier is 10,000 events per rolling 30 days for the whole
+    # team; half the page loads is plenty for a real-experience score.
+    "speed_insights_sample_rate": 0.5,
     # IndexNow shared secret. Proof of ownership is the matching file served at
     # /<key>.txt, so the key is deliberately public. Rotating it means changing
     # this line and re-running the build; the old file simply stops being served.

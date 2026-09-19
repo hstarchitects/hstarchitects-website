@@ -1,0 +1,37 @@
+name: Supabase keepalive
+
+# Second, independent keepalive for the Free-plan Supabase project. Vercel Cron
+# calling api/keepalive.js is the primary; this one fails independently of
+# Vercel, so a paused or misconfigured Vercel project cannot let Supabase pause.
+# It talks to Supabase directly with the publishable key, which is already public
+# in assets/js/config.js, so it needs no secret.
+#
+# GitHub disables scheduled workflows in a public repository after 60 days
+# without commits. If that happens, re-enable it under Actions.
+on:
+  schedule:
+    - cron: "41 */6 * * *"   # every six hours, UTC, off the top of the hour
+  workflow_dispatch: {}
+
+permissions: {}
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    env:
+      SUPABASE_URL: https://mhfempltoebztrvybidb.supabase.co
+      SUPABASE_KEY: sb_publishable_n0lmxgelzVR3py-ZOTDuCQ_O991Dxlr
+    steps:
+      - name: Query the database three times
+        run: |
+          fail=0
+          for i in 1 2 3; do
+            code=$(curl -s -o /dev/null -w '%{http_code}' --max-time 20 \
+              -H "apikey: $SUPABASE_KEY" \
+              "$SUPABASE_URL/rest/v1/enquiries?select=id&limit=1")
+            echo "read $i -> $code"
+            [ "$code" = "200" ] || fail=1
+            sleep 2
+          done
+          exit $fail
