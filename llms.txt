@@ -25,15 +25,15 @@ and build under one contract: interior design, renovation and fit-out, and lands
 - [Private Office, Business Bay](https://hstarchitects.com/projects/business-bay-private-office/): Interior, Business Bay, Dubai, 2023.
 - [Private Office, Deira](https://hstarchitects.com/projects/deira-private-office/): Interior, Deira, Dubai, 2018.
 - [Villa Landscape, Damac Hills](https://hstarchitects.com/projects/damac-hills-landscape/): Landscape, Damac Hills, Dubai, 2023.
-- [Office Renovation, NBD Building](https://hstarchitects.com/projects/nbd-building-office/): Fit-Out, Dubai, .
-- [Private Villa, Jumeirah](https://hstarchitects.com/projects/jumeirah-villa/): Residential, Jumeirah, Dubai, .
-- [Penthouse Redesign, Dubai Marina](https://hstarchitects.com/projects/marina-penthouse/): Residential, Dubai Marina, .
-- [IMA Gallery Showroom](https://hstarchitects.com/projects/ima-gallery-showroom/): Retail, Art of Living Mall, Dubai, .
-- [GAMA Fashion Showroom](https://hstarchitects.com/projects/gama-fashion-showroom/): Retail, Abu Dhabi, .
-- [DNG Furniture Showroom](https://hstarchitects.com/projects/dng-furniture-showroom/): Retail, Al Barsha One, Dubai, .
-- [Mehr o Mah Art Café](https://hstarchitects.com/projects/mehr-o-mah-art-cafe/): Hospitality, Jumeirah 1, Dubai, .
-- [Roof Garden, District One](https://hstarchitects.com/projects/district-one-roof-garden/): Landscape, District One, Dubai, .
-- [Dubai Hills Landscape](https://hstarchitects.com/projects/dubai-hills-landscape/): Landscape, Dubai Hills, Dubai, .
+- [Office Renovation, NBD Building](https://hstarchitects.com/projects/nbd-building-office/): Fit-Out, Dubai.
+- [Private Villa, Jumeirah](https://hstarchitects.com/projects/jumeirah-villa/): Residential, Jumeirah, Dubai.
+- [Penthouse Redesign, Dubai Marina](https://hstarchitects.com/projects/marina-penthouse/): Residential, Dubai Marina.
+- [IMA Gallery Showroom](https://hstarchitects.com/projects/ima-gallery-showroom/): Retail, Art of Living Mall, Dubai.
+- [GAMA Fashion Showroom](https://hstarchitects.com/projects/gama-fashion-showroom/): Retail, Abu Dhabi.
+- [DNG Furniture Showroom](https://hstarchitects.com/projects/dng-furniture-showroom/): Retail, Al Barsha One, Dubai.
+- [Mehr o Mah Art Café](https://hstarchitects.com/projects/mehr-o-mah-art-cafe/): Hospitality, Jumeirah 1, Dubai.
+- [Roof Garden, District One](https://hstarchitects.com/projects/district-one-roof-garden/): Landscape, District One, Dubai.
+- [Dubai Hills Landscape](https://hstarchitects.com/projects/dubai-hills-landscape/): Landscape, Dubai Hills, Dubai.
 
 ## Key pages
 - [Home](https://hstarchitects.com/): overview of the studio and its three disciplines.

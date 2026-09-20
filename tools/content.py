@@ -34,6 +34,10 @@ SITE = {
     # is delivered by the ImprovMX forwarder configured for hstarchitects.com.
     "email": "info@hstarchitects.com",
     "address_line": "Office 1603, Burj Khalifa",
+    # named on its own wherever the copy wants the landmark rather than the
+    # suite; deriving it from address_line by position broke when the field
+    # order changed
+    "building": "Burj Khalifa",
     "address_locality": "Downtown Dubai",
     "address_region": "Dubai",
     "address_country": "AE",

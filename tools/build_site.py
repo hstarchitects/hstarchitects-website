@@ -918,7 +918,7 @@ def build_contact():
 
         <div style="margin-top:1.2rem;border-radius:var(--r-lg);overflow:hidden;border:1px solid var(--line)">
           <iframe title="Map showing HST Architects at Burj Khalifa, Downtown Dubai"
-            src="https://www.google.com/maps?q=Burj%20Khalifa%20Downtown%20Dubai&output=embed"
+            src="https://www.google.com/maps?q={SITE['geo']['lat']},{SITE['geo']['lng']}&output=embed"
             width="100%" height="300" style="border:0;display:block" loading="lazy"
             referrerpolicy="no-referrer-when-downgrade"></iframe>
         </div>
@@ -1083,7 +1083,7 @@ def build_consultation():
           <a class="btn btn--light" href="tel:{SITE["phone_link"]}" data-contact="phone" data-loc="hero">{icon("phone")}<span>Call</span></a>
         </div>
         <p class="lp-hero__trust small">Part of {esc(SITE["legal"])}, a licensed UAE building maintenance and technical
-          services company. Studio at {esc(SITE["address_line"].split(",")[0])}, {esc(SITE["address_locality"])}.</p>
+          services company. Studio at {esc(SITE["building"])}, {esc(SITE["address_locality"])}.</p>
         <div class="hero-stats lp-hero__facts">{facts}</div>
       </div>
       {lp_form()}
@@ -1370,7 +1370,8 @@ Host: {SITE['domain'].replace('https://', '')}
     # llms.txt, a plain-text map for answer engines
     svc_lines = "\n".join(f'- [{s["title"]}]({SITE["domain"]}{s["url"]}): {s["short"]}' for s in SERVICES)
     proj_lines = "\n".join(
-        f'- [{p["title"]}]({SITE["domain"]}/projects/{p["slug"]}/): {p["cat"]}, {p["loc"]}, {p["year"]}.'
+        f'- [{p["title"]}]({SITE["domain"]}/projects/{p["slug"]}/): '
+        + ", ".join([p["cat"], p["loc"]] + ([str(p["year"])] if p.get("year") else [])) + "."
         for p in PROJECTS)
     llms = f"""# {SITE['name']}
 
