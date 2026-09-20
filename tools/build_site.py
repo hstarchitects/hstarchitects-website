@@ -729,7 +729,7 @@ def build_about():
           other direction: years of building maintenance and technical services work across residential and commercial
           buildings in Dubai, watching which details fail in year two and which ones hold.</p>
         <p>That is the practice's advantage. When we specify a stone, a joinery detail or an irrigation run, it is chosen
-          against what we have already had to repair somewhere else in this city. Our head office is in Boulevard Plaza,
+          against what we have already had to repair somewhere else in this city. Our head office is in the Burj Khalifa,
           Downtown Dubai, and our teams work across the Emirates on
           <a href="/services/interior-design/">interior design</a>,
           <a href="/services/renovation/">renovation and fit-out</a>, and
@@ -778,7 +778,7 @@ def build_about():
 
 {faq_block(about_faqs, "About the studio")}
 
-{cta_band("Come and see us.", "Boulevard Plaza, Downtown Dubai.",
+{cta_band("Come and see us.", "Burj Khalifa, Downtown Dubai.",
           "Or send the property details and we will come to you. Either way the first conversation costs nothing.")}
 
 {related_block([
@@ -917,8 +917,8 @@ def build_contact():
         </div>
 
         <div style="margin-top:1.2rem;border-radius:var(--r-lg);overflow:hidden;border:1px solid var(--line)">
-          <iframe title="Map showing HST Architects at Boulevard Plaza Tower 1, Downtown Dubai"
-            src="https://www.google.com/maps?q=Boulevard%20Plaza%20Tower%201%20Downtown%20Dubai&output=embed"
+          <iframe title="Map showing HST Architects at Burj Khalifa, Downtown Dubai"
+            src="https://www.google.com/maps?q=Burj%20Khalifa%20Downtown%20Dubai&output=embed"
             width="100%" height="300" style="border:0;display:block" loading="lazy"
             referrerpolicy="no-referrer-when-downgrade"></iframe>
         </div>

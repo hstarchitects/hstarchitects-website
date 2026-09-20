@@ -33,12 +33,13 @@ SITE = {
     # and every enquiry sent to it bounced. This address is on our own domain and
     # is delivered by the ImprovMX forwarder configured for hstarchitects.com.
     "email": "info@hstarchitects.com",
-    "address_line": "Boulevard Plaza Tower 1, Office 1603",
+    "address_line": "Office 1603, Burj Khalifa",
     "address_locality": "Downtown Dubai",
     "address_region": "Dubai",
     "address_country": "AE",
-    # Boulevard Plaza Tower 1, Downtown Dubai
-    "geo": {"lat": "25.1959", "lng": "55.2745"},
+    # Burj Khalifa, Downtown Dubai. Matches the address on the Meta business
+    # portfolio, which is what the studio confirmed as correct.
+    "geo": {"lat": "25.197197", "lng": "55.274376"},
     # schema.org day tokens; a plain "Sa-Th" string is not parseable
     "hours_days": ["Saturday", "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday"],
     "hours_open": "09:00",
@@ -556,7 +557,7 @@ PAGES_SEO = {
     },
     "contact": {
         "title": "Contact HST Architects | Downtown Dubai Studio",
-        "meta": "Talk to HST Architects about your villa, office or garden. Boulevard Plaza Tower 1, "
+        "meta": "Talk to HST Architects about your villa, office or garden. Office 1603, Burj Khalifa, "
                 "Downtown Dubai. Call +971 50 399 9314 or send your project details.",
         "h1": "Tell us about the space",
     },
