@@ -87,6 +87,10 @@ SITE = {
     "google_site_verification": "a3QYZmgKMLe_y-VVLSbVf4CQhixq44gdcIWkj5sP12I",
     "socials": {
         "instagram": "https://www.instagram.com/hst.arch",
+        # Same business, 196k followers. Named in sameAs so search engines
+        # tie the profile to this site; the page itself is not linked from
+        # the footer, which keeps one social call to action.
+        "facebook": "https://www.facebook.com/hsttechnical",
     },
 }
 

@@ -562,7 +562,7 @@ def org_ld():
             "closes": SITE["hours_close"],
         }],
         "areaServed": [{"@type": "City", "name": a} for a in SITE["areas"]],
-        "sameAs": [SITE["socials"]["instagram"]],
+        "sameAs": [v for v in SITE["socials"].values() if v],
         "knowsAbout": [
             "Interior design", "Interior fit-out", "Villa renovation", "Office fit-out",
             "Landscape design", "Swimming pool construction", "Joinery and millwork",
